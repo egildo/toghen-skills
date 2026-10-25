@@ -1,0 +1,9 @@
+{
+  "name": "toghen",
+  "version": "0.1.0",
+  "description": "Drive Figma and FigCraft from a repository: the pipeline from token and component files to both, and what each app does at the version pinned.",
+  "author": { "name": "Egildo Tagliareni" },
+  "repository": "https://codeberg.org/Toghen/skills",
+  "license": "MIT",
+  "keywords": ["design tokens", "dtcg", "figma", "figcraft", "design systems"]
+}
