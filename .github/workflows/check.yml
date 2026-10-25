@@ -1,0 +1,22 @@
+# Copied from house 0.1.0. Change it in house, then copy it out again.
+# Runs on the GitHub mirror; the repository itself lives on Codeberg.
+# skills holds no code: only the purity check runs here.
+name: check
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+      - name: purity
+        env:
+          PURITY_NAMES: ${{ secrets.PURITY_NAMES }}
+        run: |
+          if [ -n "$PURITY_NAMES" ]; then
+            printf '%s\n' "$PURITY_NAMES" > "$RUNNER_TEMP/purity-names"
+            export TOGHEN_PURITY_NAMES="$RUNNER_TEMP/purity-names"
+          fi
+          node scripts/check-purity.mjs
