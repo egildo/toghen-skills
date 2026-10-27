@@ -1,4 +1,4 @@
-# Toghen's FigCraft target, at `@toghen/figma` 0.1.0 (7.0.1 before the split)
+# Toghen's FigCraft target, at `@toghen/figma` 0.1.10 (0.1.0 was 7.0.1 before the split)
 
 What `toghen-figma` does when it writes into FigCraft, as an agent needs it to read a run and to know what will be refused. The commands, their order and the CSS and Figma sides are `toghen:pipeline`'s. The authority is Toghen's own `figma/specs.md` (*FigCraft*) and `reference.md` (*Into FigCraft*, *Headless*, *The lock*).
 
@@ -127,3 +127,20 @@ Not written, without a refusal:
 - `doc.list` and `page.list` show the `-toghen` divider beside the pages.
 - `node.get` on a set, a member or a layer Toghen made shows `pluginData["toghen.stamp"]`. A layer may also show `toghen.unreported`.
 - A second run with no change in the source plans nothing and writes nothing: `0 created · 0 updated · 0 deleted`, `0 would update` in a set's dry run, `Variable plan: 0 creates · 0 updates · <n> skips (<n> unchanged)`. Two causes of rewrites were found and closed in figma 7.0.0, both reproduced against `figcraft-cli` 0.10.0: a bound paint's alpha, which depends on the layer's mode (now compared by its variable only), and a bound size beside `HUG`, which FigCraft settles as fixed (now refused by `check`). Anything else after an unchanged source is drift or a FigCraft change worth reporting.
+
+## Since 0.1.0
+
+Each reported by a consumer running headless into FigCraft 0.10.0, and reproduced with synthetic files against `figcraft-cli` 0.10.0 (`figma/decisions.md`, 25 to 27 October 2026).
+
+| Version | What changed | What an agent sees |
+|---|---|---|
+| 0.1.1 | A frame that hugs an axis every child in its flow fills is refused by the check: FigCraft sets the child back to `FIXED`, so it never settled. An instance set to `HUG` or `FILL` with no size of its own lets its main's bound size go first, since FigCraft keeps a bound size fixed | `FRAME "Face" fills the width of FRAME "Chip", which hugs it: …`; an instance that fills, filling |
+| 0.1.2 | A slot's default content, stamped as the component's, is the component's, not the artboard's | No more removals planned for it on every run |
+| 0.1.3 | The file is read once a run, and again only where a write reached | A large run in seconds or minutes, not an hour |
+| 0.1.4 | An artboard's dry run counts its layers; a new instance whose slot the artboard fills can be added to an artboard that exists | `would create · would update · would delete` |
+| 0.1.5 | A dry run takes a library's variable or style already copied into the file, as the real run would | No longer `115 would update` straight after a real run |
+| 0.1.6 | `--skip-unchanged`: a fingerprint of what the run would write is stamped on each set and artboard; a run with the flag leaves an unchanged one unread | `unchanged, its fingerprint the same; not read`. A new version reads everything once |
+| 0.1.7, 0.1.8 | The design system's sum and its snapshots are built once a run | A skipped set costs milliseconds, not a second, on a large document |
+| 0.1.9 | A removed layer takes what it holds in one step; the writer passes over a layer already gone | A run that removes a frame with layers in it no longer stops on `no such node` |
+| 0.1.10 | `--prune`; and the removals at the end of a run reach the file | Before 0.1.10, a stray the end of a run reported `removed` stayed in the file: the next run with `--allow-breaking` removes it |
+

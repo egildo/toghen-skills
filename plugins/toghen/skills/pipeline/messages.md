@@ -1,6 +1,6 @@
 # Messages a run prints, and what to do
 
-*Pinned to `@toghen/figma` 0.1.0 (lib 0.1.0, postcss 0.1.0) and `@toghen/query` 0.1.0, the same code as figma 7.0.0, lib 6.0.0, postcss 0.21.0 and query 0.2.0 before the split, checked 24 October 2026. Text in `<angle brackets>` varies. Sources: `figma/cli/*.ts`, `figma/main/components/resolve.ts`, `figma/reference.md`, `postcss/reference.md` (*Messages*).*
+*Pinned to `@toghen/figma` 0.1.10 (lib 0.1.0, postcss 0.1.0) and `@toghen/query` 0.1.0 (lib 6.0.0, postcss 0.21.0 and query 0.2.0 before the split), checked 27 October 2026; lib, postcss and query as of 24 October 2026. Text in `<angle brackets>` varies. Sources: `figma/cli/*.ts`, `figma/main/components/resolve.ts`, `figma/reference.md`, `postcss/reference.md` (*Messages*).*
 
 Problems go to standard error, plans and reports to standard output. A message that ends a run is marked **stops**.
 
@@ -52,9 +52,12 @@ Each problem is `<file>:<line>:<column> <message>`; a warning is `<file>:<line>:
 | `token {chip.hover.backgroundColor} is the "hover" part of "chip.backgroundColor", which is one variable with a mode per "state": name {chip.backgroundColor}; the member pins the mode (a tokens= axis, or modes state=hover)` | Name the token it folds into |
 | `FRAME "Chip": "height" is bound to {chip.height} while layoutSizingVertical=HUG: a bound height is a fixed size; write layoutSizingVertical=HUG and drop the height token, or keep the token and drop HUG` | Choose one. Beside a text's `textAutoResize` the sentence ends `or keep the token and write textAutoResize=NONE` (`HEIGHT` for a width) |
 | `component tokens="{nothing}" names no token and no group of the design system` | Fix the group |
+| `FRAME "Face" fills the width of FRAME "Chip", which hugs it: a frame cannot hug children that only fill it; give "Chip" a fixed width, or a child a width of its own` (or `height`; several children: `FRAME "A", FRAME "B" fill …`) | A hugging frame whose every child in its flow fills it has nothing to size it by, and never settles in FigCraft. Do as it says |
 | `VARIANT "State" takes its values from the modifier "state", which the design system does not have` | Remove the `(modifier)` axis; states are parts (`figma/guide.md`, *Move a component file off state modifiers*) |
 | `… is not one Figma gets` | A context left out of `figma.include` is named in an axis, a guard, `exclude` or `modes` |
 | `breaking: "<name>" (<id>) is a member outside any set, left by an earlier run; it is removed with --allow-breaking.` | A stray. Stops a real run without `--allow-breaking`; the person decides |
+| `breaking: the set "<n>" (<id>) on page "<p>" has no source: no file in the run declares component "<n>"; it is removed with --allow-breaking.` (or `the artboard …`, `declares artboard …`) | `--prune` only: its file is gone. Stops a real run without `--allow-breaking`; a dry run lists it and exits 1. If the file was only left out of this run, add it back |
+| `one set or artboard has no source; a run with --prune and --allow-breaking removes it.` / `N sets and artboards have no source; …` (exit 1) | The end of a `--prune` dry run that listed any. The person decides |
 | A broken set: its members at fault, with ids, `ours` or `made by hand`, ending `delete or rename the members named, then run again` | A person fixes the set in Figma |
 | `warning: … wired to nothing …` | A property that does nothing in some member. Never stops anything; read it |
 
@@ -82,7 +85,7 @@ The plan prints `Variable plan: <c> creates · <u> updates · <s> skips (<n> <ca
 
 ## Components and artboards
 
-The report prints `<Name>: N steps · c created · u updated · d deleted[ · b breaking]`. A set's dry run says `<Name> (dry run): N steps · c created · n would update · d deleted`, the members a real run would write to, and with `--verbose` one line per patch, `  patch <member> <address>: <fields>`. Then lines starting `pending:`, `breaking:`, `warning:`, `left:`. An artboard's dry run lists its layers: `create`, `patch`, `replace`, `move`, `remove`, and `swap` for an instance Toghen made whose component the lock now answers with another (the relink).
+The report prints `<Name>: N steps · c created · u updated · d deleted[ · b breaking]`. A set's dry run says `<Name> (dry run): N steps · c created · n would update · d deleted`, the members a real run would write to, and with `--verbose` one line per patch, `  patch <member> <address>: <fields>`. An artboard's dry run counts layers: `<Name> (dry run): N steps · c would create · u would update · d would delete`; a removed layer counts once, with what it holds. With `--skip-unchanged`, a set or artboard left alone says `<Name> (dry run): unchanged, its fingerprint the same; not read` (without `(dry run)` in a real run). Then lines starting `pending:`, `breaking:`, `warning:`, `left:`. An artboard's dry run lists its layers: `create`, `patch`, `replace`, `move`, `remove`, and `swap` for an instance Toghen made whose component the lock now answers with another (the relink).
 
 A component that cannot run prints `<file>: was not planned: <headline>` or `<file>: was not built: <headline>`, then `  - <problem>` lines. **The run goes on to the next file and exits 1 at the end.**
 
@@ -107,6 +110,7 @@ A component that cannot run prints `<file>: was not planned: <headline>` or `<fi
 | `left: member "<m>", layer "<address>": "paddingTop" was changed in Figma since Toghen wrote it, and was left as it is; pass --overwrite-drift to write the file's value` | Drift on a component or artboard field. The wording says Figma in FigCraft runs too. With `--overwrite-drift` it is a `warning:` line ending `; the file's value is written over it` |
 | `left: … is a copy of Toghen's …, left alone` | A person's duplicate; never touched |
 | `removed "<x>" (<id>)`, `moved "Chip" to <x>, <y>`, `note: …` | The end of the run: strays removed, sets restacked |
+| `removed the set "<n>" (<id>) from page "<p>"` (or `the artboard`), `note: page "<p>" holds nothing now; it is left as it is` | The end of a `--prune --allow-breaking` run. The page is the person's to delete |
 
 ## FigCraft, live and headless
 

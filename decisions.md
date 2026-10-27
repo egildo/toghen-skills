@@ -83,3 +83,21 @@ Toghen moved to lib 6.0.0, postcss 0.21.0 and figma 7.0.0 (`.reference/plans/tog
 **Why.** Ruled by Egildo on 25 October 2026: one repository per package, and a [house](https://codeberg.org/Toghen/house) repository for what they share (the constitution, the speckit preset, the Biome config, the purity check). The plan is in house, `.reference/plans/workspace/plan-2026-10-25-tooling-codeberg.md`.
 
 **With it.** Biome lints and formats the code, `pnpm check` runs every gate, and speckit with the house preset runs the rounds. The plugin is numbered 0.1.0, and every pin names the new numbers, with the old ones beside them. Paths in the skills name the repository (`figma/guide.md`) instead of the monorepo folder.
+
+## Checked again: `@toghen/figma` 0.1.10 (27 October 2026)
+
+**Status:** done. The plugin is 0.1.1.
+
+**Why.** The skills pinned figma 0.1.0, and ten releases followed in three days, each from a consumer's headless FigCraft run (`figma/decisions.md`, 25 to 27 October). Two of them add flags a pipeline uses: `--skip-unchanged` and `--prune`.
+
+**How it was checked.** Each change was reproduced headless against `figcraft-cli` 0.10.0 with synthetic files when it was built; the usage text of 0.1.10 was printed and compared with `commands.md`; the new messages were read from the source and the tests.
+
+**What changed in the skills.**
+
+- `pipeline/commands.md`: the two flags in the usage, the flags table and the exit codes (a `--prune` dry run that lists anything exits 1); a quick check script with `--skip-unchanged`, and `--prune` on the full one.
+- `pipeline/messages.md`: the hug-and-fill refusal, the `has no source` lines and the dry run's closing line, the `unchanged, its fingerprint the same` line, an artboard's `would create · would update · would delete`, and what the end of a pruning run says.
+- `pipeline/SKILL.md`: the pins; the end of a run; the hug-and-fill refusal among the check's; the two dry runs and what each proves; a set or artboard with no source among the breaking steps.
+- `figcraft/SKILL.md` and `toghen-target.md`: the pins, large files, and a table of what each release changed, with the warning that before 0.1.10 a stray reported removed in FigCraft stayed in the file.
+- `figma/`: the Toghen lines name 0.1.10; the hug-and-fill refusal and FigCraft's instance sizing, neither measured in Figma.
+
+**Kept as it was:** the Figma and FigCraft facts, pinned to 23 October 2026 and FigCraft 0.10.0; lib, postcss and query, unchanged since 24 October.

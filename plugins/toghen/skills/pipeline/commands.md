@@ -1,6 +1,6 @@
 # Commands, flags and exit codes
 
-*Pinned to `@toghen/figma` 0.1.0 and `@toghen/query` 0.1.0 (7.0.1 and 0.2.0 before the split), checked 24 October 2026 against the usage text the command prints. The authority is the usage text in `figma/cli/main.ts` and `figma/reference.md` (*The command line: toghen-figma*, *Into FigCraft*, *Headless*, *The lock*).*
+*Pinned to `@toghen/figma` 0.1.10 and `@toghen/query` 0.1.0 (query 0.2.0 before the split), checked 27 October 2026 against the usage text the command prints. The authority is the usage text in `figma/cli/main.ts` and `figma/reference.md` (*The command line: toghen-figma*, *Into FigCraft*, *Headless*, *The lock*).*
 
 ## How to call it
 
@@ -12,8 +12,8 @@
 
 ```
 toghen-figma variables  <entry.json>…          [--name <n>] [--overrides <map.json>] [--collection <n>] [--dry-run] [--allow-breaking] [--overwrite-drift] [--verbose] [--figcraft <port> | --figcraft-file <path.figcraft>] [--library <library>]
-toghen-figma components <file.kdl>…            [--resolver <entry.json>] [--name <n>] [--overrides <map.json>] [--input <doc>] [--page <n>] [--dry-run] [--allow-breaking] [--overwrite-drift] [--verbose] [--figcraft <port> | --figcraft-file <path.figcraft>] [--library <library> | --use <library>…]
-toghen-figma sync       <entry.json>… <file.kdl>… [--name <n>] [--overrides <map.json>] [--collection <n>] [--input <doc>] [--page <n>] [--dry-run] [--allow-breaking] [--overwrite-drift] [--verbose] [--figcraft <port> | --figcraft-file <path.figcraft>] [--library <library> | --use <library>…]
+toghen-figma components <file.kdl>…            [--resolver <entry.json>] [--name <n>] [--overrides <map.json>] [--input <doc>] [--page <n>] [--dry-run] [--allow-breaking] [--overwrite-drift] [--skip-unchanged] [--prune] [--verbose] [--figcraft <port> | --figcraft-file <path.figcraft>] [--library <library> | --use <library>…]
+toghen-figma sync       <entry.json>… <file.kdl>… [--name <n>] [--overrides <map.json>] [--collection <n>] [--input <doc>] [--page <n>] [--dry-run] [--allow-breaking] [--overwrite-drift] [--skip-unchanged] [--prune] [--verbose] [--figcraft <port> | --figcraft-file <path.figcraft>] [--library <library> | --use <library>…]
 toghen-figma check      <entry.json>… <file.kdl>… [--name <n>] [--overrides <map.json>] [--input <doc>]
 toghen-figma members    <entry.json>… <file.kdl>… [--name <n>] [--overrides <map.json>] [--input <doc>]
 toghen-figma lock       <library name>
@@ -47,6 +47,8 @@ A `<library>` is the library's name as Figma names it, or, with `--figcraft` or 
 | `--verbose` | variables, components, sync | Lists every skip of a plan, `unchanged: <path>` included, with no list cut at ten, and every patch of a component set as `patch <member> <address>: <fields>`. Without it, a plan lists the rows of every cause but `unchanged`, ten per cause |
 | `--allow-breaking` | variables, components, sync | Takes the steps that break instances or delete a mode. The person's call |
 | `--overwrite-drift` | variables, components, sync | Writes the source over every hand edit. All or nothing. The person's call |
+| `--skip-unchanged` | components, sync | Leaves unread each set and artboard whose stamp holds the fingerprint of what this run would write for it, and says `unchanged, its fingerprint the same; not read`. Every real run stamps the fingerprint. It trusts it: a hand edit in a skipped set or artboard is not looked for, so keep a run without it for that. A new Toghen version reads everything once: run one real run after upgrading. In FigCraft a dry run with it reads a frame's insides only where it compares it |
+| `--prune` | components, sync | The files given are the whole system for the file the run writes. Each set and artboard Toghen made there that none declares has no source: listed as `breaking:`; a dry run that lists any exits 1; a real run stops unless `--allow-breaking` is given too, and with it removes them at its end. A page left empty stays. Give it every file, or it takes the ones left out for gone |
 | `--figcraft <port>` | variables, components, sync, lock | Runs into the file FigCraft shows, through `127.0.0.1:<port>` |
 | `--figcraft-file <path.figcraft>` | variables, components, sync, lock | Runs into that file with no app, through `figcraft-cli mcp`, and saves it if the run completes. The path must end in `.figcraft` |
 | `--library <library>` | variables, components, sync | Builds in the library file, then fills the target's lock. Figma: the library's name; a person publishes and accepts. FigCraft: its `.figcraft` file; the run publishes and saves it, enables it in the target, accepts its updates and writes the lock |
@@ -56,7 +58,7 @@ A `<library>` is the library's name as Figma names it, or, with `--figcraft` or 
 
 | Command | 0 | 1 |
 |---|---|---|
-| `variables`, `components`, `sync` | Every step succeeded (a dry run with breaking steps listed included) | Anything failed: arguments, a file, the check, component files naming each other in a cycle, a stopped plan, a refused breaking step, a refused write, the plugin gone, a component not built, a headless save that failed |
+| `variables`, `components`, `sync` | Every step succeeded (a dry run with breaking steps listed included, but for `--prune`) | Anything failed: arguments, a file, the check, component files naming each other in a cycle, a stopped plan, a refused breaking step, a refused write, the plugin gone, a component not built, a headless save that failed; and a dry run with `--prune` that lists a set or artboard with no source |
 | `check`, `members` | No file has an error | A file has an error or cannot be read |
 | `lock` | Figma: keys copied. FigCraft: enabled, accepted and the lock written, or, in a dry run, what waits said | The plugins or FigCraft did not answer, or the lock was not written |
 
@@ -129,7 +131,8 @@ await writeFile('dist/mini.css', css);
     "figcraft:check":  "toghen-figma sync tokens/mini.resolver.json components/*.component.kdl --figcraft 7979 --dry-run",
     "figcraft:sync":   "toghen-figma sync tokens/mini.resolver.json components/*.component.kdl --figcraft 7979",
 
-    "figcraft:file:check": "toghen-figma sync tokens/mini.resolver.json components/*.component.kdl docs/chip.artboard.kdl --input docs/chip.data.json --figcraft-file design/mini.figcraft --dry-run",
+    "figcraft:file:check": "toghen-figma sync tokens/mini.resolver.json components/*.component.kdl docs/chip.artboard.kdl --input docs/chip.data.json --figcraft-file design/mini.figcraft --dry-run --prune",
+    "figcraft:file:quick": "toghen-figma sync tokens/mini.resolver.json components/*.component.kdl docs/chip.artboard.kdl --input docs/chip.data.json --figcraft-file design/mini.figcraft --dry-run --skip-unchanged",
     "figcraft:file":       "toghen-figma sync tokens/mini.resolver.json components/*.component.kdl docs/chip.artboard.kdl --input docs/chip.data.json --figcraft-file design/mini.figcraft",
 
     "figma:library":   "toghen-figma sync tokens/mini.resolver.json components/*.component.kdl --page Components --library \"Mini Library\"",
@@ -160,6 +163,8 @@ No script carries `--allow-breaking` or `--overwrite-drift`. A person adds them 
 ```sh
 pnpm figma:sync -- --allow-breaking
 ```
+
+`--prune` in a check is safe: it lists, and fails the check, but removes nothing without `--allow-breaking`. `figcraft:file:quick` answers in seconds once a real run has stamped the fingerprints, and does not look for hand edits; `figcraft:file:check` reads everything, finds hand edits, and fails on a set or artboard whose source is gone.
 
 ## A CI job
 

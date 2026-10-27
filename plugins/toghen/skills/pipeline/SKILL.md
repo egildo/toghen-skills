@@ -2,11 +2,11 @@
 name: pipeline
 description: Use when a repository's design tokens (DTCG token files, a resolver document) and component or artboard files (.component.kdl, .artboard.kdl) must become CSS, Figma variables, styles and component sets, or the same in a FigCraft file, through Toghen's toghen-figma command line. Covers the order of a run and why, what a token's value may hold, dry runs first (skips by cause, --verbose), pairing with the Figma plugin without blocking, FigCraft live and headless (--figcraft, --figcraft-file), libraries in both (--library, lock, --use), checks with no target, drift, --overwrite-drift and --allow-breaking, exit codes, what needs a person, and the assets Toghen does not make.
 license: MIT
-compatibility: "Documents Toghen @toghen/figma 0.1.0 (lib 0.1.0, postcss 0.1.0, query 0.1.0; before the split figma 7.0.1, lib 6.0.0, postcss 0.21.0, query 0.2.0), checked 24 October 2026"
+compatibility: "Documents Toghen @toghen/figma 0.1.10 (lib 0.1.0, postcss 0.1.0, query 0.1.0; before the split lib 6.0.0, postcss 0.21.0, query 0.2.0), checked 27 October 2026"
 metadata:
   documents: "toghen"
-  version: "0.1.0"
-  checked: "2026-10-24"
+  version: "0.1.10"
+  checked: "2026-10-27"
 allowed-tools: Bash Read Grep Glob
 ---
 
@@ -16,13 +16,13 @@ allowed-tools: Bash Read Grep Glob
 
 | What | Version | Source |
 |---|---|---|
-| `@toghen/figma` (the `toghen-figma` command and the Figma plugin) | 0.1.0 (7.0.1 before the split) | `figma/package.json` |
+| `@toghen/figma` (the `toghen-figma` command and the Figma plugin) | 0.1.10 (0.1.0 was 7.0.1 before the split) | `figma/package.json` |
 | `@toghen/lib` | 0.1.0 (6.0.0 before the split) | `lib/package.json` |
 | `@toghen/postcss` | 0.1.0 (0.21.0 before the split) | `postcss/package.json` |
 | `@toghen/query` (`toghen-query`) | 0.1.0 (0.2.0 before the split) | `query/package.json` |
 | FigCraft app and `figcraft-cli` | measured against 0.9.0 and 0.10.0; a headless run needs `figcraft-cli` 0.8.0 or later | `figma/decisions.md` (*What the build found: finishing the FigCraft target*, *headless FigCraft runs*) |
 | Figma | the desktop app only; the browser app is not measured | `figma/decisions.md` (*Open questions › The command line*) |
-| Checked | 24 October 2026, against figma 7.0.0, now 0.1.0 (computed values, skips by cause, the new `check` refusals, components in dependency order) and query 0.2.0, now 0.1.0: the usage text, `check`, `members`, `toghen-query check` and the CSS build run on the example | `.reference/skills-research/pipeline-2026-10-23.md`; `.reference/plans/toghen-figma/plan-2026-10-23-figcraft-libraries.md`; `.reference/plans/toghen-lib/plan-2026-10-24-computed-values.md`; `.reference/plans/toghen-figma/plan-2026-10-24-issues.md` (each plan's *What the build found*) |
+| Checked | 27 October 2026, against figma 0.1.10: the usage text, `--skip-unchanged`, `--prune` and the messages added since 0.1.0 (`figma/decisions.md`, the entries of 25 to 27 October). Before that, 24 October 2026, against figma 7.0.0, now 0.1.0 (computed values, skips by cause, the new `check` refusals, components in dependency order) and query 0.2.0, now 0.1.0: the usage text, `check`, `members`, `toghen-query check` and the CSS build run on the example | `.reference/skills-research/pipeline-2026-10-23.md`; `.reference/plans/toghen-figma/plan-2026-10-23-figcraft-libraries.md`; `.reference/plans/toghen-lib/plan-2026-10-24-computed-values.md`; `.reference/plans/toghen-figma/plan-2026-10-24-issues.md` (each plan's *What the build found*) |
 
 If the installed Toghen is newer, read `figma/cli/main.ts` (the usage text) and the guide before trusting a flag here.
 
@@ -89,7 +89,7 @@ Lib stores every value as CSS computes it without an element (`lib/reference.md`
 5. **Styles.** Plan, print, then execute.
 6. **Component files**, one at a time, in dependency order: each after every file that defines a component it names. Ties keep the order given; a name a `--use` library holds is no dependency. Files that name each other in a cycle stop the run before the variable plan.
 7. **Artboard files**, one at a time.
-8. **End of run.** Strays are removed (only with `--allow-breaking`), and Toghen's sets are stacked again on each page it touched.
+8. **End of run.** Strays are removed (only with `--allow-breaking`), and with `--prune` the sets and artboards no file declares (only with `--allow-breaking` too), and Toghen's sets are stacked again on each page it touched.
 
 Why:
 
@@ -125,7 +125,8 @@ node scripts/build-css.mjs     # @toghen/postcss with onUnresolved: 'throw'
 - It also refuses, each with the fix in its sentence:
   - a folded part's name, such as `{chip.hover.backgroundColor}`, and says which to use: `name {chip.backgroundColor}; the member pins the mode`;
   - `#null` on a `width` or `height` (a size cannot be cleared; write `HUG` or `FILL`). The four limits keep `#null`;
-  - a `width` or `height` bound to a token, written or from `tokens=`, beside `HUG` or `FILL` on its axis, or beside a text's `textAutoResize` that sizes that axis. A bound size is a fixed size, and the target would settle on one of the two.
+  - a `width` or `height` bound to a token, written or from `tokens=`, beside `HUG` or `FILL` on its axis, or beside a text's `textAutoResize` that sizes that axis. A bound size is a fixed size, and the target would settle on one of the two;
+  - a frame that hugs an axis every child in its flow fills, which has nothing to size it by.
 - `members` prints each file's component, members and problems as JSON, the members a build would make. Use it to draw members somewhere Toghen does not.
 - `toghen-query … check` prints `incomplete:`, `holes:`, `non-factorable:` and `collisions:`. Each says `(none)` when clean. It exits 1 when `incomplete`, `holes` or `non-factorable` has entries. Collisions do not fail it: `load` reports them as advice, the last source winning.
 - After the CSS build, search the output for `[object Object]` and an unresolved `t(` or `toghen(`. There should be none.
@@ -226,7 +227,10 @@ Read the dry run's output in this order:
 3. **`drifted:` lines** for variables and styles, and **`left:` lines** for components (`"<field>" was changed in Figma since Toghen wrote it`). These are hand edits, kept unless the person decides otherwise.
 4. **`warning:` and `skipped:` lines.** Font fallbacks, values Figma cannot hold, the mode limit. Skips are grouped by cause: every cause but `unchanged` lists its rows as `skipped: <reason>`, ten per cause, then `…and N more; --verbose lists them`. `--verbose` lists every skip, `unchanged: <path>` included, and every patch of a set as `patch <member> <address>: <fields>`.
 5. **`pending:` lines.** Names a dry run counts as present because an earlier step would create them: variables, styles, modes, and the sets a component file earlier in the run builds. They are expected in a dry run.
-6. **The counts.** `Variable plan: 3 creates · 0 updates · 239 skips (180 unchanged · 40 cannot be written · 19 unsupported type)`, most frequent cause first, then `modes`, `scopes`, `warnings` and `breaking` when not zero; the same for `Style plan:`. Then `<Component> (dry run): N steps · c created · n would update · d deleted`: the members a real run would write to. An artboard's dry run lists its layers instead. A second run with nothing changed plans nothing: `0 would update`, in FigCraft too.
+6. **The counts.** `Variable plan: 3 creates · 0 updates · 239 skips (180 unchanged · 40 cannot be written · 19 unsupported type)`, most frequent cause first, then `modes`, `scopes`, `warnings` and `breaking` when not zero; the same for `Style plan:`. Then `<Component> (dry run): N steps · c created · n would update · d deleted`: the members a real run would write to. An artboard's dry run counts layers, `N steps · c would create · u would update · d would delete`, and lists them. A second run with nothing changed plans nothing: `0 would update`, in FigCraft too.
+7. **With `--prune`, `breaking: the set … has no source`.** A set or artboard no file of the run declares. The dry run exits 1 for it. If its file was only left out of this run, add it back; if it was deleted, removing it is the person's call (`--allow-breaking`).
+
+Two dry runs serve two purposes. Without flags it reads and compares everything, and finds hand edits. With `--skip-unchanged`, after one real run has stamped the fingerprints, it leaves alone each set and artboard whose inputs have not changed, and answers in seconds on a large file; it does not look for hand edits there.
 
 What a dry run proves, and what it does not:
 
@@ -253,7 +257,8 @@ Toghen stamps everything it writes, and a second run writes only the difference.
   - a layer replaced by another kind;
   - a property removed or retyped;
   - a stray member removed;
-  - an artboard layer removed;
+  - an artboard layer removed (once, with what it holds);
+  - with `--prune`, a set or artboard no file declares, removed at the end of the run; a page it leaves empty stays;
   - a context's mode deleted.
 
   Without `--allow-breaking`, a real run stops before writing. Instances of a removed member keep pointing at it in every file that uses the library. Someone must swap them.
@@ -388,7 +393,8 @@ A component **set** that Toghen did not make, with the name of a component file,
    - the collection name in a token reference;
    - a folded part's name (`{chip.hover.backgroundColor}`): name the token it folds into, and let the member pin the mode;
    - `#null` on a `width` or `height`;
-   - a bound `width` or `height` beside `HUG`, `FILL` or a text's `textAutoResize` on that axis.
+   - a bound `width` or `height` beside `HUG`, `FILL` or a text's `textAutoResize` on that axis;
+   - a frame that hugs an axis every child in its flow fills: give the frame a fixed size, or a child a size of its own.
 
    A brace meant as text is doubled: `"{{space.sm}}"`.
 

@@ -2,11 +2,11 @@
 name: figcraft
 description: Use when Toghen writes into FigCraft, the open-source Rust design app with Figma's model (github storytold/figcraft) — `toghen-figma variables | components | sync | lock` with `--figcraft <port>` or `--figcraft-file <path.figcraft>` — or when reading what such a run left behind: its messages, the `-toghen` divider, `toghen.stamp` layer data, drift, the lock, and what Toghen builds in FigCraft and refuses by name. Covers the pinned file, write-then-bind as Toghen meets it, headless runs in CI, FigCraft libraries (`--library <file.figcraft>`, `lock`, `--use`, keys, preferred values by name, a library collection's mode in `modes`), instance sizes on an artboard, and the few driving essentials a reader needs. For driving FigCraft itself, use `artcraft:figcraft`. Not the Figma plugin of the same name.
 license: MIT
-compatibility: Documents FigCraft 0.10.0 (app and figcraft-cli), docs tag v0.10.0, through Toghen @toghen/figma 0.1.0 (7.0.1 before the split); FigCraft checked 23 October 2026, Toghen 24 October 2026
+compatibility: Documents FigCraft 0.10.0 (app and figcraft-cli), docs tag v0.10.0, through Toghen @toghen/figma 0.1.10; FigCraft checked 23 October 2026, Toghen 27 October 2026
 metadata:
   documents: figcraft
   version: "0.10.0"
-  checked: "2026-10-24"
+  checked: "2026-10-27"
 allowed-tools: Bash Read
 ---
 
@@ -17,8 +17,8 @@ allowed-tools: Bash Read
 | App | FigCraft 0.10.0 (22 October 2026) | `gh release list -R storytold/figcraft` |
 | Command line | `figcraft-cli` 0.10.0; a headless run needs 0.8.0 or later | the same release |
 | Docs | tag `v0.10.0` | `docs/` in the repository at the tag, never `main` |
-| Toghen | `@toghen/figma` 0.1.0 (7.0.1 before the split): the FigCraft target with libraries, an unchanged run that writes nothing, a library collection's mode, instance sizes | `figma/specs.md`, *FigCraft*; `reference.md`, *Into FigCraft*, *Headless*, *The lock*; `.reference/plans/toghen-figma/plan-2026-10-23-figcraft-libraries.md`; `.reference/plans/toghen-figma/plan-2026-10-24-issues.md` (*What the build found*) |
-| Checked | 23 October 2026, against a running 0.10.0 app and `figcraft-cli` 0.10.0, in files of the check's own. 24 October 2026, the Toghen side against figma 7.0.0's docs (now 0.1.0) and usage text, with no FigCraft run of the check's own | |
+| Toghen | `@toghen/figma` 0.1.10 (0.1.0 was 7.0.1 before the split): the FigCraft target with libraries, an unchanged run that writes nothing, a library collection's mode, instance sizes; since 0.1.1, large files read once, `--skip-unchanged`, `--prune`, artboard dry-run counts, and the fixes in `toghen-target.md` (*Since 0.1.0*) | `figma/specs.md`, *FigCraft*; `reference.md`, *Into FigCraft*, *Headless*, *The lock*; `.reference/plans/toghen-figma/plan-2026-10-23-figcraft-libraries.md`; `.reference/plans/toghen-figma/plan-2026-10-24-issues.md` (*What the build found*) |
+| Checked | 23 October 2026, against a running 0.10.0 app and `figcraft-cli` 0.10.0, in files of the check's own. 24 October 2026, the Toghen side against figma 7.0.0's docs (now 0.1.0) and usage text. 25 to 27 October 2026, each change of figma 0.1.1 to 0.1.10 reproduced headless against `figcraft-cli` 0.10.0 with synthetic files | `figma/decisions.md`, the entries of 25 to 27 October |
 
 FigCraft runs no Figma plugin, so Toghen reaches it from its command line. It uses FigCraft's own control socket, or a headless `figcraft-cli mcp` with no app. The plans, the dry run, the stamps and the report are the Figma run's; only the reads and the writes are FigCraft's.
 
@@ -77,7 +77,9 @@ Over the socket it also names the `window`. One batch is one undo step, rolled b
 - **Fonts are the machine's.** `FIGCRAFT_NO_SYSTEM_FONTS=1` in the environment narrows them to FigCraft's own on every machine. It also changes what `text.fonts` lists, so a text style naming a system family falls back or is skipped.
 - This is the CI route: Figma cannot run in CI, but a `.figcraft` file can be synced and committed.
 
-**A dry run of a set** says `<Name> (dry run): N steps · c created · n would update · d deleted`, the members a real run would write to; `--verbose` adds `patch <member> <address>: <fields>` per patch. So a freshness check in CI can read `0 would update`.
+**A dry run of a set** says `<Name> (dry run): N steps · c created · n would update · d deleted`, the members a real run would write to; `--verbose` adds `patch <member> <address>: <fields>` per patch. An artboard's counts layers: `N steps · c would create · u would update · d would delete`. So a freshness check in CI can read `0 would update`.
+
+**Large files.** A run reads the file once, and again only what its writes reached. For a check that must answer in seconds, `--skip-unchanged` leaves alone each set and artboard whose inputs are as the last real run stamped them, and a dry run with it reads a frame's insides only where it compares it; it does not see hand edits there. Measured with synthetic files against `figcraft-cli` 0.10.0: 9,686 layers in 80 artboards, a dry run 2.7 s, 1.5 s with the flag; a build 10.4 s. See `toghen-target.md`, *Since 0.1.0*.
 
 **One operation, one batch.** A variable with its scopes, a style with its bindings, or a whole new component set lands as one undo step, or not at all. The last step of a run is *Toghen stamps*.
 
