@@ -1,6 +1,6 @@
 # Messages a run prints, and what to do
 
-*Pinned to `@toghen/figma` 0.1.10 (lib 0.1.0, postcss 0.1.0) and `@toghen/query` 0.1.0 (lib 6.0.0, postcss 0.21.0 and query 0.2.0 before the split), checked 27 October 2026; lib, postcss and query as of 24 October 2026. Text in `<angle brackets>` varies. Sources: `figma/cli/*.ts`, `figma/main/components/resolve.ts`, `figma/reference.md`, `postcss/reference.md` (*Messages*).*
+*Pinned to `@toghen/figma` 0.1.16 (lib 0.1.0, postcss 0.1.0) and `@toghen/query` 0.1.0 (lib 6.0.0, postcss 0.21.0 and query 0.2.0 before the split), checked 23 November 2026 against what `figma/cli/*.ts` prints; lib, postcss and query as of 24 October 2026. Text in `<angle brackets>` varies. Sources: `figma/cli/*.ts`, `figma/main/components/resolve.ts`, `figma/reference.md`, `postcss/reference.md` (*Messages*).*
 
 Problems go to standard error, plans and reports to standard output. A message that ends a run is marked **stops**.
 
@@ -20,7 +20,9 @@ Problems go to standard error, plans and reports to standard output. A message t
 | `lock --dry-run is FigCraft's: in Figma, lock writes nothing a dry run could hold back` **stops** | | Drop `--dry-run` |
 | `--figcraft and --figcraft-file do not go together: …` **stops** | | Choose the app or the file |
 | `--figcraft-file takes a .figcraft file, which the run saves; got <path>` **stops** | | Use a `.figcraft` path |
-| `unknown option <flag> for <command>` / `<flag> needs a value` **stops** | | Fix the arguments |
+| `unknown option <flag> for <command>` / `<flag> needs a value` / `unknown command <x>` / `no command given` **stops** | | Fix the arguments |
+| `--figcraft takes the port FigCraft's control socket listens on, a number; got <x>` **stops** | | Give the port |
+| `no component file given` **stops** | `check`, `members` or `components` with no `.kdl` | Add the files |
 | `--overrides <file> cannot be read as JSON: …` / `… must hold one JSON object: …` **stops** | | Fix the map |
 | `<file> cannot be read: …` **stops** | | Fix the path; paths are relative to where the command was typed |
 | `the component files name each other in a cycle, so none of them can be built first: a.component.kdl → b.component.kdl → a.component.kdl; nothing was written` **stops** | Files run in dependency order, and these cannot | Take one of the instances out |
@@ -60,6 +62,7 @@ Each problem is `<file>:<line>:<column> <message>`; a warning is `<file>:<line>:
 | `one set or artboard has no source; a run with --prune and --allow-breaking removes it.` / `N sets and artboards have no source; …` (exit 1) | The end of a `--prune` dry run that listed any. The person decides |
 | A broken set: its members at fault, with ids, `ours` or `made by hand`, ending `delete or rename the members named, then run again` | A person fixes the set in Figma |
 | `warning: … wired to nothing …` | A property that does nothing in some member. Never stops anything; read it |
+| `warning: {chip.color} names the rest's variable, which a member's parts replace: "<member>" selects {<token>}; …. Bind the group with tokens= to follow them, or keep the rest if that is meant` | A token named outright that some members' parts replace. Bind the group with `tokens=`, or keep it if the rest is meant |
 
 The whole list of checks: `figma/component-files.md` (*What is checked*).
 
@@ -81,11 +84,11 @@ The plan prints `Variable plan: <c> creates · <u> updates · <s> skips (<n> <ca
 | `note: N variables are offered to every field: …; declare figma.scopes to narrow them.` | | Optional: add `figma.scopes` |
 | `"<style>" uses "<family>": "<a>" and "<b>" are not available in Figma.` | A font fallback on this machine | Install the face, or accept it |
 | `"<component>": "<axis>" stays in the path, one variable per part: …` | How parts became variables | Informational |
-| `Variable sync: <a> applied · <s> skipped · <f> failed` then `failed: <reason>` and `Variable sync did not complete, so no component was run.` **stops** | Figma refused a write. `skipped` counts skips, failed prerequisites and cancellations, not warnings or notes | Read the reason; run again after fixing |
+| `Variable sync: <a> applied · <s> skipped · <f> failed[ · <c> cancelled]` then `failed: <reason>` and `Variable sync did not complete, so no component was run.` **stops** | Figma refused a write. `skipped` counts skips, failed prerequisites and cancellations, not warnings or notes | Read the reason; run again after fixing |
 
 ## Components and artboards
 
-The report prints `<Name>: N steps · c created · u updated · d deleted[ · b breaking]`. A set's dry run says `<Name> (dry run): N steps · c created · n would update · d deleted`, the members a real run would write to, and with `--verbose` one line per patch, `  patch <member> <address>: <fields>`. An artboard's dry run counts layers: `<Name> (dry run): N steps · c would create · u would update · d would delete`; a removed layer counts once, with what it holds. With `--skip-unchanged`, a set or artboard left alone says `<Name> (dry run): unchanged, its fingerprint the same; not read` (without `(dry run)` in a real run). Then lines starting `pending:`, `breaking:`, `warning:`, `left:`. An artboard's dry run lists its layers: `create`, `patch`, `replace`, `move`, `remove`, and `swap` for an instance Toghen made whose component the lock now answers with another (the relink).
+The report prints `<Name>: N steps · c created · u updated · d deleted[ · b breaking][ · n drifted]`, the last the fields kept as hand edits, each with its `left:` line below. A set's dry run says `<Name> (dry run): N steps · c created · n would update · d deleted`, the members a real run would write to, with the same `breaking` and `drifted` counts, and with `--verbose` one line per patch, `  patch <member> <address>: <fields>`. An artboard's dry run counts layers: `<Name> (dry run): N steps · c would create · u would update · d would delete`; a removed layer counts once, with what it holds. With `--skip-unchanged`, a set or artboard left alone says `<Name> (dry run): unchanged, its fingerprint the same; not read` (without `(dry run)` in a real run). Then lines starting `pending:`, `breaking:`, `warning:`, `left:`. An artboard's dry run lists its layers: `create`, `patch`, `replace`, `move`, `remove`, and `swap` for an instance Toghen made whose component the lock now answers with another (the relink).
 
 A component that cannot run prints `<file>: was not planned: <headline>` or `<file>: was not built: <headline>`, then `  - <problem>` lines. **The run goes on to the next file and exits 1 at the end.**
 
@@ -127,6 +130,8 @@ A component that cannot run prints `<file>: was not planned: <headline>` or `<fi
 | `Saved <path>.` | Headless, completed | Commit the file, or keep it as an artifact |
 | `<path> was not saved: the run did not complete.` (exit 1) | Headless, stopped partway | The file is as it was; fix and rerun |
 | A save error such as `No such file or directory` (exit 1) | The folder does not exist | Create the folder |
+| `FigCraft did not open <path>.` **stops** | Headless with `--library`: the library exists, and `figcraft-cli` 0.18.1 lists no paths to an MCP call, so figma 0.1.16 cannot find its tab | Build the library live, with `--figcraft <port>` |
+| `FigCraft no longer has "<name>" at the tab it was in: it was not saved at <path>.` (exit 1) | Headless with `--library`: a new library was published and saved, then not found by its path, for the same reason; the target is not saved | The same |
 | `will not build "<component>": nothing was written` **stops**, then lines such as: | FigCraft refuses something by name | Leave that out of FigCraft, or build it in Figma only |
 | ` "<c>" <address>: a component named by a Figma key is not built in FigCraft, whose keys are <library id>:<asset id>; name the component, and declare its library with --use` | | Name it, and `--use` its library |
 | ` "<c>": the preferred values of "<p>" name Figma's published keys, which FigCraft does not hold; name the components with name=` | | `preferred COMPONENT name="…"` |
@@ -135,7 +140,7 @@ A component that cannot run prints `<file>: was not planned: <headline>` or `<fi
 | ` "<c>": the default of "<p>" is a token, which FigCraft does not bind to a property yet` | | |
 | ` "<c>" <address>: the field <name> is not built in FigCraft yet` | | |
 | `FigCraft does not list <family> <style>` | A font FigCraft does not have | Install it, or change the typography |
-| `FigCraft target: an effect style of <type> is not translated.` / `… a paint style of <type> is not translated.` | Only shadows and gradients | |
+| `FigCraft target: an effect of <type> is not translated.` / `FigCraft target: a paint style of <type> is not translated.` | Only shadows and gradients | |
 | `The default mode "<m>" of collection "<c>" is never deleted.` | | |
 | `The stamps were not written into FigCraft: …. The next run adopts what this one wrote by name.` | | Rerun |
 | FigCraft's own message, then `; this batch pinned a library collection's mode at <what>` | FigCraft refused a `--use` library collection's mode, such as a mode the collection lacks | Fix the `modes` line it names |
@@ -146,6 +151,7 @@ A component that cannot run prints `<file>: was not planned: <headline>` or `<fi
 |---|---|
 | `Library "<n>": C components · S styles · V variables · …` | What the library file holds |
 | `"<set>" is not published as it is now (UNPUBLISHED\|CHANGED): publish the library, then accept its update in the target file.` | Figma: a person's step |
+| `The <text\|effect\|paint> style "<path>" is not published as it is now (…): …` / `<n> variables are not published as they are now: …` | The same, for styles and variables |
 | `Dry run: the lock in the target file was not written.` | |
 | `The lock in the target file was not written: the build in the library file did not complete.` (exit 1) | Fix the library build first |
 | `The lock in the target file holds "<n>", written by the build.` | Done |
@@ -162,6 +168,7 @@ The run publishes, enables and accepts; nothing is a person's step but saving th
 |---|---|
 | `Building the library <path>, in "<tab>".` / `Building the library <path>, a new file.` | A `--library` run: the build goes into the library |
 | `Published the library <path> as version <v>, and saved it.` | |
+| `The library <path> is already published as version <v>: nothing to publish.` | Nothing changed in the library; the run goes on to the target |
 | `Enabled <path> in "<tab>", and accepted <n> updates from it.` / `…, with no update to accept.` | The target's half |
 | `The lock in "<tab>" holds "<name>" (<given>), written by the build: <c> components · <s> styles · <v> variables.` | Done; `written by the command line` after `lock` |
 | `Using <path>: the lock in "<tab>" holds "<name>", <c> components · <s> styles · <v> variables.` | A `--use` run refreshed the entry |

@@ -11,11 +11,11 @@ Skills for an agent that keeps Figma and FigCraft files in step with a repositor
 ## Install
 
 ```bash
-claude plugin marketplace add egildo/Toghen
+claude plugin marketplace add egildo/toghen-skills
 claude plugin install toghen@toghen
 ```
 
-In a session: `/plugin marketplace add egildo/Toghen`. While working on the skills themselves, load them in place: `claude --plugin-dir toghen-skills/plugins/toghen`, then `/reload-plugins` after an edit.
+`egildo/toghen-skills` is the GitHub mirror of this repository, which lives on Codeberg. In a session: `/plugin marketplace add egildo/toghen-skills`. While working on the skills themselves, load them in place from a checkout: `claude --plugin-dir plugins/toghen`, then `/reload-plugins` after an edit.
 
 ## Update
 

@@ -10,13 +10,13 @@ The purity rule holds here as everywhere in Toghen: no skill names a design syst
 
 ```
 .claude-plugin/marketplace.json            the marketplace, at the repository's root
-toghen-skills/plugins/toghen/
+plugins/toghen/
   .claude-plugin/plugin.json                the plugin: its name and the version of its text
   skills/<name>/SKILL.md                    a skill, under 500 lines
   skills/<name>/*.md                        detail a skill links to, read when needed
 ```
 
-**Why the manifest is at the repository's root.** Claude Code adds a marketplace from a repository, not from a folder inside one, so `claude plugin marketplace add egildo/Toghen` needs `.claude-plugin/marketplace.json` at the root. Its `source` points into this package, and the skills stay here. *Not chosen:* the manifest inside `skills/`, which works for a local path but needs a setting (`extraKnownMarketplaces` with a `path`) that the documentation does not confirm for a subfolder.
+**Why the manifest is at the repository's root.** Claude Code adds a marketplace from a repository, not from a folder inside one, so `claude plugin marketplace add egildo/toghen-skills`, the GitHub mirror of this repository, needs `.claude-plugin/marketplace.json` at the root. Its `source` points into `plugins/`, and the skills stay there. *Not chosen:* the manifest inside `skills/`, which works for a local path but needs a setting (`extraKnownMarketplaces` with a `path`) that the documentation does not confirm for a subfolder.
 
 **One plugin, three skills.** One version number for all three. *Not chosen:* a plugin per skill, three versions to keep in step for skills that are used together.
 
@@ -38,4 +38,4 @@ The research a check rests on is kept in `.reference/skills-research/`, dated.
 
 ## Validation
 
-`claude plugin validate .` at the repository's root checks the marketplace; `claude plugin validate toghen-skills/plugins/toghen` checks the plugin and its skills.
+`claude plugin validate .` at the repository's root checks the marketplace; `claude plugin validate plugins/toghen` checks the plugin and its skills. CI runs only the purity check, `node scripts/check-purity.mjs`.

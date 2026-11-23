@@ -1,4 +1,4 @@
-# Toghen's FigCraft target, at `@toghen/figma` 0.1.10 (0.1.0 was 7.0.1 before the split)
+# Toghen's FigCraft target, at `@toghen/figma` 0.1.16 (0.1.0 was 7.0.1 before the split)
 
 What `toghen-figma` does when it writes into FigCraft, as an agent needs it to read a run and to know what will be refused. The commands, their order and the CSS and Figma sides are `toghen:pipeline`'s. The authority is Toghen's own `figma/specs.md` (*FigCraft*) and `reference.md` (*Into FigCraft*, *Headless*, *The lock*).
 
@@ -7,7 +7,7 @@ What `toghen-figma` does when it writes into FigCraft, as an agent needs it to r
 | Flag | Into | Saved by | Needs |
 |---|---|---|---|
 | `--figcraft <port>` | the file the app shows when the run starts | the person | the app started with `--control <port>` |
-| `--figcraft-file <path.figcraft>` | that file, headless (a new one when the path has none) | the run, once it completed | `figcraft-cli` 0.8.0 or later, from `FIGCRAFT_CLI` or the PATH |
+| `--figcraft-file <path.figcraft>` | that file, headless (a new one when the path has none) | the run, once it completed | `figcraft-cli` 0.8.0 or later (0.15.1 or later only from figma 0.1.16), from `FIGCRAFT_CLI` or the PATH |
 
 Both go on `variables`, `components` and `sync`, and on `lock`. They exclude each other. With either, `--library` and `--use` take a `.figcraft` file (*Libraries*, below).
 
@@ -49,14 +49,14 @@ Both go on `variables`, `components` and `sync`, and on `lock`. They exclude eac
 | `lock <library.figcraft> (--figcraft <port> \| --figcraft-file <target.figcraft>) [--dry-run]` | untouched | enabled, updates accepted, lock written |
 | `components \| sync … --use <library.figcraft>…` | untouched | each library enabled and its lock entry refreshed, no update accepted; then the files resolve through the lock, a `modes` collection of the library included |
 
-- **Both files at once.** Live, the library is pinned by its path: its tab, or a tab the run opens and leaves open. Headless, it is a second document in the same `figcraft-cli mcp` session. A library file that does not exist is made; one the run made and did not save is closed.
+- **Both files at once.** Live, the library is pinned by its path: its tab, or a tab the run opens and leaves open. Headless, it is a second document in the same `figcraft-cli mcp` session, also pinned by its path, which `figcraft-cli` 0.18.1 does not list to an MCP call: at figma 0.1.16 a headless `--library` run fails, with `FigCraft did not open <path>.` for an existing library, and `… it was not saved at <path>.` for a new one, published and saved but not found again. A library file that does not exist is made; one the run made and did not save is closed.
 - **Order.** The library is published and saved only after its build completed; the target is touched only after that. A failed build publishes nothing and writes no lock.
 - **A dry run** of `--library` or `lock` builds, publishes, enables and accepts nothing; it reports what the target's `library.updates` lists from that library. A dry run with `--use` neither enables nor refreshes, and resolves through the lock as it is.
 - **The lock entry** is keyed by the library file's name without `.figcraft`, and holds `path` and `id` beside `components`, `styles` and `variables`, filled from the target's `library.list {assets}`. It lives in the root's data, kept in the record on the `-toghen` divider. The id is what makes a moved file the same library: `library.add` with the new path re-points it.
 - **Keys** are `<library id>:<asset id>`. A component file's `(key)` is accepted only in that form. Imports go by `library.import` and `library.importVariable`; a library style is applied with `library.applyStyle`. A dry run imports nothing.
 - **The relink.** A component the library made again is a new asset, not an update, so the target keeps the old copy. The next `--use` run swaps every instance Toghen made (`swap <layer>` in an artboard's plan, a dry run included) by `instance.swap`. A person's instances, which carry no stamp, are left. FigCraft's `library.swap`, which would move the person's too, is not used.
 - **The library's own stamps travel** onto its copies and onto every instance in the target. Toghen never takes them for the target's.
-- **A library collection's mode.** A `modes` line naming a collection no local one is named after is looked for among the `--use` libraries, as the one whose variables' ids in the lock begin with `<collection>/`. Found in the file and in a library, or in two libraries, it stops the build naming each. It is written by `library.setVariableMode {library, collection, mode, ids}`, which copies the collection in, linked and read-only, and checks the mode's name; FigCraft's refusal comes back as its own message, then `; this batch pinned a library collection's mode at <what>`. It is kept in `toghen.unreported` as `library:<library>/<collection>`, so a second run compares it and writes nothing. A dry run needs the library locked first. **Not yet run against a real FigCraft:** the parameters come from the 0.9.0 command list, and the refusal's wording is not measured.
+- **A library collection's mode.** A `modes` line naming a collection no local one is named after is looked for among the `--use` libraries, as the one whose variables' ids in the lock begin with `<collection>/`. Found in the file and in a library, or in two libraries, it stops the build naming each. It is written by `library.setVariableMode {library, collection, mode, ids}`, which copies the collection in, linked and read-only, and checks the mode's name; FigCraft's refusal comes back as its own message, then `; this batch pinned a library collection's mode at <what>`. It is kept in `toghen.unreported` as `library:<library>/<collection>`, so a second run compares it and writes nothing. A dry run needs the library locked first. **Not yet run against a real FigCraft:** the parameters come from the 0.9.0 command list, the same in 0.18.1's, and the refusal's wording is not measured.
 - **Not built:** team libraries (`library.publishToServer`, share links), a library's extended collections.
 
 ## The stamps
@@ -130,7 +130,7 @@ Not written, without a refusal:
 
 ## Since 0.1.0
 
-Each reported by a consumer running headless into FigCraft 0.10.0, and reproduced with synthetic files against `figcraft-cli` 0.10.0 (`figma/decisions.md`, 25 to 27 October 2026).
+Each reported by a consumer's FigCraft run, and reproduced with synthetic files: against `figcraft-cli` 0.10.0 up to 0.1.15, against 0.15.1 for 0.1.16 (`figma/decisions.md`, 25 October to 7 November 2026).
 
 | Version | What changed | What an agent sees |
 |---|---|---|
@@ -143,4 +143,10 @@ Each reported by a consumer running headless into FigCraft 0.10.0, and reproduce
 | 0.1.7, 0.1.8 | The design system's sum and its snapshots are built once a run | A skipped set costs milliseconds, not a second, on a large document |
 | 0.1.9 | A removed layer takes what it holds in one step; the writer passes over a layer already gone | A run that removes a frame with layers in it no longer stops on `no such node` |
 | 0.1.10 | `--prune`; and the removals at the end of a run reach the file | Before 0.1.10, a stray the end of a run reported `removed` stayed in the file: the next run with `--allow-breaking` removes it |
+| 0.1.11 | A guard written with no body by a part key's name is supplied; a token named outright that some members' parts replace is warned of | `warning: {…} names the rest's variable, which a member's parts replace: …` |
+| 0.1.12 | A `SLOT` built into FigCraft no longer keeps the white fill a new frame starts with | A slot built before keeps its white until it is cleared by hand or the set is rebuilt |
+| 0.1.13 | `textAlignHorizontal`, `textAlignVertical`, `textCase` and `textDecoration` reach FigCraft | Before, none was written, and every run planned the same patch again |
+| 0.1.14 | A member binds the variable that carries what the precedence picks, folded parts included | A member whose folded part wins a tie binds that part's variable, and draws what the stylesheet draws |
+| 0.1.15 | The stamp records the variables each field bound; a field whose variable the sync removed is written as moved, not kept as drift. A set's summary counts its drift | `· 3 drifted` on the summary line. A stamp from before needs one run with `--overwrite-drift` |
+| 0.1.16 | The stamps are read with no `depth` | Before 0.1.16, every headless run against `figcraft-cli` 0.15.1 or later stops at reading the stamps: `unknown parameter "depth"` in `node.get` |
 

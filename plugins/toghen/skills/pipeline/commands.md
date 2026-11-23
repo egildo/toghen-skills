@@ -1,11 +1,11 @@
 # Commands, flags and exit codes
 
-*Pinned to `@toghen/figma` 0.1.10 and `@toghen/query` 0.1.0 (query 0.2.0 before the split), checked 27 October 2026 against the usage text the command prints. The authority is the usage text in `figma/cli/main.ts` and `figma/reference.md` (*The command line: toghen-figma*, *Into FigCraft*, *Headless*, *The lock*).*
+*Pinned to `@toghen/figma` 0.1.16 and `@toghen/query` 0.1.0 (query 0.2.0 before the split), checked 23 November 2026 against the usage text in `figma/cli/main.ts` and `query/src/main.ts`. The authority is the usage text in `figma/cli/main.ts` and `figma/reference.md` (*The command line: toghen-figma*, *Into FigCraft*, *Headless*, *The lock*).*
 
 ## How to call it
 
 - In a design system's repository, from an npm script, or with `pnpm exec toghen-figma …`.
-- Inside the Toghen checkout: `pnpm --filter @toghen/figma toghen-figma <args>`.
+- Inside a checkout of figma: `pnpm toghen-figma <args>`.
 - Paths are read from the directory the command was typed in. pnpm passes it as `INIT_CWD`, which `cli/bin.mjs` uses.
 
 ## `toghen-figma`

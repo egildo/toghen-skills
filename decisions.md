@@ -101,3 +101,7 @@ Toghen moved to lib 6.0.0, postcss 0.21.0 and figma 7.0.0 (`.reference/plans/tog
 - `figma/`: the Toghen lines name 0.1.10; the hug-and-fill refusal and FigCraft's instance sizing, neither measured in Figma.
 
 **Kept as it was:** the Figma and FigCraft facts, pinned to 23 October 2026 and FigCraft 0.10.0; lib, postcss and query, unchanged since 24 October.
+
+## Corrected: no Biome and no `pnpm check` here (23 November 2026)
+
+The entry of 25 October, *With it*, says Biome lints and formats the code and `pnpm check` runs every gate. Neither holds for this repository: it has no code and no `package.json`. Its gate is the purity check, `node scripts/check-purity.mjs`, which CI runs; `claude plugin validate` checks the marketplace and the plugin by hand.
