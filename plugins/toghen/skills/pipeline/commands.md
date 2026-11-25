@@ -1,12 +1,13 @@
 # Commands, flags and exit codes
 
-*Pinned to `@toghen/figma` 0.1.16 and `@toghen/query` 0.1.0 (query 0.2.0 before the split), checked 23 November 2026 against the usage text in `figma/cli/main.ts` and `query/src/main.ts`. The authority is the usage text in `figma/cli/main.ts` and `figma/reference.md` (*The command line: toghen-figma*, *Into FigCraft*, *Headless*, *The lock*).*
+*Pinned to `@toghen/figma` 0.1.17, `@toghen/query` 0.1.1 (0.1.0 was 0.2.0 before the split) and `@toghen/postcss` 0.2.0, checked 25 November 2026 against the usage text in `figma/cli/main.ts` and `query/src/main.ts` and against `postcss/guide.md`, each at its tag; checked before on 23 November 2026, at figma 0.1.16 and query 0.1.0. The authority is the usage text in `figma/cli/main.ts` and `figma/reference.md` (*The command line: toghen-figma*, *Into FigCraft*, *Headless*, *The lock*).*
 
 ## How to call it
 
 - In a design system's repository, from an npm script, or with `pnpm exec toghen-figma …`.
 - Inside a checkout of figma: `pnpm toghen-figma <args>`.
-- Paths are read from the directory the command was typed in. pnpm passes it as `INIT_CWD`, which `cli/bin.mjs` uses.
+- Paths are read from the directory the command runs in: where it was typed, with `pnpm exec`; in an npm script, the package's folder, or the one the script changes to first (`cd design && toghen-figma …`). `INIT_CWD` is not read.
+- `toghen-figma --help`, or `-h`, prints the usage on standard output and exits 0.
 
 ## `toghen-figma`
 
@@ -50,7 +51,7 @@ A `<library>` is the library's name as Figma names it, or, with `--figcraft` or 
 | `--skip-unchanged` | components, sync | Leaves unread each set and artboard whose stamp holds the fingerprint of what this run would write for it, and says `unchanged, its fingerprint the same; not read`. Every real run stamps the fingerprint. It trusts it: a hand edit in a skipped set or artboard is not looked for, so keep a run without it for that. A new Toghen version reads everything once: run one real run after upgrading. In FigCraft a dry run with it reads a frame's insides only where it compares it |
 | `--prune` | components, sync | The files given are the whole system for the file the run writes. Each set and artboard Toghen made there that none declares has no source: listed as `breaking:`; a dry run that lists any exits 1; a real run stops unless `--allow-breaking` is given too, and with it removes them at its end. A page left empty stays. Give it every file, or it takes the ones left out for gone |
 | `--figcraft <port>` | variables, components, sync, lock | Runs into the file FigCraft shows, through `127.0.0.1:<port>` |
-| `--figcraft-file <path.figcraft>` | variables, components, sync, lock | Runs into that file with no app, through `figcraft-cli mcp`, and saves it if the run completes. The path must end in `.figcraft` |
+| `--figcraft-file <path.figcraft>` | variables, components, sync, lock | Runs into that file with no app, through `figcraft-cli mcp`, and saves it if the run completes. The path must end in `.figcraft`, and its folder must exist before the run starts |
 | `--library <library>` | variables, components, sync | Builds in the library file, then fills the target's lock. Figma: the library's name; a person publishes and accepts. FigCraft: its `.figcraft` file; the run publishes and saves it, enables it in the target, accepts its updates and writes the lock |
 | `--use <library>` | components, sync | Repeatable. Declares a library the files may take components, tokens' variables and text and effect styles from, through the target's lock. Figma: its name as the lock holds it. FigCraft: its `.figcraft` file, enabled and its lock entry refreshed first (a dry run neither). Not with `--library` |
 
@@ -58,7 +59,7 @@ A `<library>` is the library's name as Figma names it, or, with `--figcraft` or 
 
 | Command | 0 | 1 |
 |---|---|---|
-| `variables`, `components`, `sync` | Every step succeeded (a dry run with breaking steps listed included, but for `--prune`) | Anything failed: arguments, a file, the check, component files naming each other in a cycle, a stopped plan, a refused breaking step, a refused write, the plugin gone, a component not built, a headless save that failed; and a dry run with `--prune` that lists a set or artboard with no source |
+| `variables`, `components`, `sync` | Every step succeeded (a dry run with breaking steps listed included, but for `--prune`) | Anything failed: arguments, a file, the check, component files naming each other in a cycle, a stopped plan, a refused breaking step, a refused write, the plugin gone, a component not built, a `--figcraft-file` or built `--library` whose folder does not exist, a headless request not answered in time, a headless save that failed; and a dry run with `--prune` that lists a set or artboard with no source |
 | `check`, `members` | No file has an error | A file has an error or cannot be read |
 | `lock` | Figma: keys copied. FigCraft: enabled, accepted and the lock written, or, in a dry run, what waits said | The plugins or FigCraft did not answer, or the lock was not written |
 
@@ -68,7 +69,6 @@ A `<library>` is the library's name as Figma names it, or, with `--figcraft` or 
 |---|---|
 | `FIGCRAFT_CLI` | The `figcraft-cli` binary a headless run starts. Default: `figcraft-cli` on `PATH` |
 | `FIGCRAFT_NO_SYSTEM_FONTS=1` | Reaches the headless `figcraft-cli`: FigCraft's own fonts only, the same on every machine. It also narrows `text.fonts`, which the style plan reads, so a text style in a system font falls back or is skipped |
-| `INIT_CWD` | Set by pnpm; where relative paths are read from |
 
 Files the command keeps: the pairing code in `~/.toghen/figma-pairing`, and the library's in `~/.toghen/figma-pairing.library`.
 
@@ -84,12 +84,14 @@ Useful queries in a pipeline (`query/guide.md`):
 |---|---|
 | `check` | Holes, tokens incomplete in some mode, non-factorable tokens, the collisions `load` found. Exit 1 for any but collisions |
 | `system` | Modifiers, contexts, defaults, modes built; with a map, its hash and unused keys |
-| `value <path> across` | One row per mode |
+| `value <path> across` | One row per mode, with the core's error on a row it throws for |
 | `parts <group> axes` | The axes a component's parts give it, the ones a component file takes |
 | `applies <component> state=hover` | Which token supplies each key under a selection |
 | `css <lookup path>` | A token's custom property name |
 
-Exit, for one query: 0 for an answer, `help` included; 1 for an `error: …`, a usage error, an unknown command, or a `check` with `incomplete`, `holes` or `non-factorable` entries (collisions do not fail it). A replayed `--session` exits 1 when it differs; the prompt exits 0; 2 when the document does not load.
+The flags may stand before or after the query. From the query's first word on, a `--word` is the query's unless it is one of the flags, so `css --surface-raised theme` asks for a link's custom property. After `--`, every word is the query's.
+
+Exit, for one query: 0 for an answer, `help` included; 1 for an `error: …`, a usage error, an unknown command, an `across` with a row the core threw for, or a `check` with `incomplete`, `holes` or `non-factorable` entries (collisions do not fail it). A replayed `--session` exits 1 when it differs; the prompt exits 0; 2 when the document does not load.
 
 ## The CSS build
 
@@ -111,6 +113,8 @@ await writeFile('dist/mini.css', css);
 ```
 
 - List Toghen before the mixins polyfill, or every `@apply` stays in the output.
+- List Toghen before anything that runs Lightning CSS, a PostCSS plugin such as Tailwind's included. Run first, Lightning CSS reads a number after a dot as a number, so it prints `t(palette.orange.100)` as `t(palette.orange.1)`; Toghen then reports a token that is not found, or reads another token that has the new path. Keep Vite's `css.transformer` at its default, `'postcss'`.
+- A Vite 8 production build minifies its CSS with Lightning CSS by default, and at Vite's default targets Lightning CSS lowers each `light-dark()` pair. Lowered, a pair is decided at the root, so a subtree's own `color-scheme` is ignored; with no `color-scheme` in the stylesheet, the colour is lost. Exclude the lowering: `css: { lightningcss: { exclude: Features.LightDark } }` in `vite.config.js`, with `Features` from `lightningcss` in the dev dependencies. See `postcss/guide.md` (*When Lightning CSS runs after the plugin*).
 - `onUnresolved: 'throw'` makes a missing token fail the build. Use it in CI.
 - The stylesheet holds `@layer tokens { @toghen contexts; }` and `@toghen mixins;` at its top level. See `postcss/guide.md`.
 

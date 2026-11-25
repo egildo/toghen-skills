@@ -1,4 +1,4 @@
-# Toghen's FigCraft target, at `@toghen/figma` 0.1.16 (0.1.0 was 7.0.1 before the split)
+# Toghen's FigCraft target, at `@toghen/figma` 0.1.17 (0.1.0 was 7.0.1 before the split)
 
 What `toghen-figma` does when it writes into FigCraft, as an agent needs it to read a run and to know what will be refused. The commands, their order and the CSS and Figma sides are `toghen:pipeline`'s. The authority is Toghen's own `figma/specs.md` (*FigCraft*) and `reference.md` (*Into FigCraft*, *Headless*, *The lock*).
 
@@ -7,12 +7,12 @@ What `toghen-figma` does when it writes into FigCraft, as an agent needs it to r
 | Flag | Into | Saved by | Needs |
 |---|---|---|---|
 | `--figcraft <port>` | the file the app shows when the run starts | the person | the app started with `--control <port>` |
-| `--figcraft-file <path.figcraft>` | that file, headless (a new one when the path has none) | the run, once it completed | `figcraft-cli` 0.8.0 or later (0.15.1 or later only from figma 0.1.16), from `FIGCRAFT_CLI` or the PATH |
+| `--figcraft-file <path.figcraft>` | that file, headless (a new one when the path has none) | the run, once it completed | `figcraft-cli` 0.8.0 or later (0.15.1 or later only from figma 0.1.16), from `FIGCRAFT_CLI` or the PATH; the file's folder |
 
 Both go on `variables`, `components` and `sync`, and on `lock`. They exclude each other. With either, `--library` and `--use` take a `.figcraft` file (*Libraries*, below).
 
 - **Over the socket**, the run prints `Writing into "<file>" in FigCraft on port <port>.`
-  - It pins that file for every batch.
+  - It pins that file for every batch: its tab's index, and the file by the `id` `doc.list` gives it, or by its name and path where it gives none.
   - If the file leaves its tab, the operation stops with `FigCraft no longer has "<file>" at the tab it was in …`, and every later request is refused before it is sent.
   - Nothing answering on the port is exit 1: `Nothing answered on 127.0.0.1:<port>: … Start FigCraft with --control <port>.`
 - **Headless**, the run prints `Writing into <path> headless, with figcraft-cli <version>.`
@@ -20,6 +20,8 @@ Both go on `variables`, `components` and `sync`, and on `lock`. They exclude eac
   - A run that stopped partway saves nothing and says `<path> was not saved: the run did not complete.` The file on disk is as it was.
   - A dry run never saves.
   - A CLI older than 0.8.0 stops before opening anything. A missing binary says `<cli> was not found: put figcraft-cli on the PATH, or name it with FIGCRAFT_CLI.`
+  - A folder that does not exist, for the file or for a `--library` the run builds, stops the run before it reaches FigCraft: `<flag> <path>: the folder <folder> does not exist, so the run could not save the file there; nothing was written`.
+  - `initialize` is waited for 60 s, every later request 10 minutes. Past that the session and the run stop, exit 1: `<cli> mcp did not answer <command> within <s> s, so the session was stopped`. A line on the child's standard output that is not MCP stops them too: `<cli> mcp wrote what is not MCP on its standard output: "<line>"`.
   - The fonts are the machine's; `FIGCRAFT_NO_SYSTEM_FONTS=1` in the environment reaches the child.
 
 ## How a run writes
@@ -49,7 +51,7 @@ Both go on `variables`, `components` and `sync`, and on `lock`. They exclude eac
 | `lock <library.figcraft> (--figcraft <port> \| --figcraft-file <target.figcraft>) [--dry-run]` | untouched | enabled, updates accepted, lock written |
 | `components \| sync … --use <library.figcraft>…` | untouched | each library enabled and its lock entry refreshed, no update accepted; then the files resolve through the lock, a `modes` collection of the library included |
 
-- **Both files at once.** Live, the library is pinned by its path: its tab, or a tab the run opens and leaves open. Headless, it is a second document in the same `figcraft-cli mcp` session, also pinned by its path, which `figcraft-cli` 0.18.1 does not list to an MCP call: at figma 0.1.16 a headless `--library` run fails, with `FigCraft did not open <path>.` for an existing library, and `… it was not saved at <path>.` for a new one, published and saved but not found again. A library file that does not exist is made; one the run made and did not save is closed.
+- **Both files at once.** The library is pinned by its path: `file.open` (headless, `open_file`) opens it or shows its tab, and the `index` it answers is that tab. The file is then known by its `id`. Live, a tab the run opens is left open. Headless, the library is a second document in the same `figcraft-cli mcp` session. Before figma 0.1.17 the tab was found by `doc.list`'s `path`, which `figcraft-cli` 0.18.1 gives no MCP call, so every headless `--library` run failed. A library file that does not exist is made, with no path until the run saves it; one the run made and did not save is closed. The save is checked by what `file.save` answers: a tab gone, or holding another file, by then stops the run with `FigCraft no longer has "<name>" at the tab it was in: it was not saved at <path>.`
 - **Order.** The library is published and saved only after its build completed; the target is touched only after that. A failed build publishes nothing and writes no lock.
 - **A dry run** of `--library` or `lock` builds, publishes, enables and accepts nothing; it reports what the target's `library.updates` lists from that library. A dry run with `--use` neither enables nor refreshes, and resolves through the lock as it is.
 - **The lock entry** is keyed by the library file's name without `.figcraft`, and holds `path` and `id` beside `components`, `styles` and `variables`, filled from the target's `library.list {assets}`. It lives in the root's data, kept in the record on the `-toghen` divider. The id is what makes a moved file the same library: `library.add` with the new path re-points it.
@@ -130,7 +132,7 @@ Not written, without a refusal:
 
 ## Since 0.1.0
 
-Each reported by a consumer's FigCraft run, and reproduced with synthetic files: against `figcraft-cli` 0.10.0 up to 0.1.15, against 0.15.1 for 0.1.16 (`figma/decisions.md`, 25 October to 7 November 2026).
+Up to 0.1.16, each was reported by a consumer's FigCraft run and reproduced with synthetic files: against `figcraft-cli` 0.10.0 up to 0.1.15, against 0.15.1 for 0.1.16. 0.1.17's came from the review of 23 November 2026; its library fix rests on what `figcraft-cli` 0.18.1 answers headless (`figma/decisions.md`, 25 October to 23 November 2026).
 
 | Version | What changed | What an agent sees |
 |---|---|---|
@@ -149,4 +151,5 @@ Each reported by a consumer's FigCraft run, and reproduced with synthetic files:
 | 0.1.14 | A member binds the variable that carries what the precedence picks, folded parts included | A member whose folded part wins a tie binds that part's variable, and draws what the stylesheet draws |
 | 0.1.15 | The stamp records the variables each field bound; a field whose variable the sync removed is written as moved, not kept as drift. A set's summary counts its drift | `· 3 drifted` on the summary line. A stamp from before needs one run with `--overwrite-drift` |
 | 0.1.16 | The stamps are read with no `depth` | Before 0.1.16, every headless run against `figcraft-cli` 0.15.1 or later stops at reading the stamps: `unknown parameter "depth"` in `node.get` |
+| 0.1.17 | A library's tab is the index its opening answers, and a file is known by its `id`. A missing folder stops the run before it starts. A headless session gives up after 60 s on `initialize`, 10 minutes on any other request. A set's dry run counts what it would create and delete. A set or artboard whose update fails loses its fingerprint | Headless `--library` runs against `figcraft-cli` 0.18.1, where before every one failed. `N would create · N would update · N would delete`. The next run reads a failed set or artboard whole, `--skip-unchanged` or not |
 

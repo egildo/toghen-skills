@@ -105,3 +105,36 @@ Toghen moved to lib 6.0.0, postcss 0.21.0 and figma 7.0.0 (`.reference/plans/tog
 ## Corrected: no Biome and no `pnpm check` here (23 November 2026)
 
 The entry of 25 October, *With it*, says Biome lints and formats the code and `pnpm check` runs every gate. Neither holds for this repository: it has no code and no `package.json`. Its gate is the purity check, `node scripts/check-purity.mjs`, which CI runs; `claude plugin validate` checks the marketplace and the plugin by hand.
+
+## Checked again: figma 0.1.17, lib 0.2.0, postcss 0.2.0, query 0.1.1 (25 November 2026)
+
+**Status:** done. The plugin is 0.1.2.
+
+**Why.** The fixes of the review of 23 November 2026 (house, `.reference/plans/workspace/review-2026-11-23.md`) were released on 24 and 25 November: figma 0.1.17, lib 0.2.0, postcss 0.2.0 and query 0.1.1. FigCraft stays 0.18.1. The check of 23 November, at figma 0.1.16, left no entry here and no bump; its commit says what it changed.
+
+**How it was checked.** By the routine in [specs.md](specs.md), everything read at its tag with `git show <tag>:<path>`: the decisions entries of 23 November 2026 in all four repositories, the usage text in `figma/cli/main.ts` and `query/src/main.ts`, the lines `figma/cli/*.ts` and `figma/main/engines/styleSyncEngine.ts` print, `figma/reference.md`, `postcss/reference.md` (*Messages*), `postcss/guide.md` and `query/guide.md`. No command was run, so step 2 of the routine is not done.
+
+**What changed in the skills.**
+
+- **The pins.** Every skill names figma 0.1.17; the pipeline also lib 0.2.0, postcss 0.2.0 and query 0.1.1, with the numbers before the split kept. Each *Checked* row adds this check and keeps the earlier ones.
+- **Headless library mode is no longer a limit.** figma 0.1.17 finds a FigCraft tab by the index its opening answers, and knows a file by its `id`, so `--figcraft-file` with `--library` runs against `figcraft-cli` 0.18.1 (`figma/decisions.md`, *Library mode headless*; `cli/figcraft.ts`, `pinPath` and `savePinned`). The row in the pipeline's *Known limits* is gone. The sentences in `pipeline` and `figcraft` that said such a run fails now say it needs 0.1.17.
+- **Two FigCraft lines mean something else.** `FigCraft did not open <path>.` still exists, but prints only when `doc.list` has no tab at the index FigCraft answered. `… it was not saved at <path>.` prints when the library's tab is gone, or holds another file, at its save.
+- **Paths** are read from `process.cwd()`, not `INIT_CWD` (`cli/bin.mjs`). `commands.md` says where that is, and its `INIT_CWD` row is gone.
+- **A missing folder** for `--figcraft-file`, or for a `--library` the run builds, stops the run before it starts, with its own sentence (`cli/run.ts`). Before, the save failed at the end.
+- **A set's dry run** says `N would create · N would update · N would delete` (`cli/run.ts`), in `pipeline`, `messages.md` and `figcraft`.
+- **New lines in `messages.md`:**
+  - the headless waits, 60 s and 10 minutes, and a standard output that is not MCP (`cli/figcraft.ts`);
+  - a plugin window another one replaced (`cli/bridge.ts`);
+  - a literal `fontWeight` a text style cannot hold (`main/engines/styleSyncEngine.ts`), which `example.md` now expects too;
+  - postcss's three new reports, which a build under `'throw'` can now fail on (`postcss/reference.md`, *Messages*).
+- **`toghen-figma --help`** exits 0 (`cli/main.ts`).
+- **`toghen-query`.** An `across` with a row the core threw for shows the core's error on that row and exits 1. Flags may follow the query (`query/guide.md`, *Three ways in*).
+- **The Lightning CSS order rule**, unit D of house's `.reference/plans/workspace/plan-2026-11-23-lightningcss.md`: two bullets in `commands.md`, *The CSS build*, taken from `postcss/guide.md` (*When Lightning CSS runs after the plugin*). Toghen runs before Lightning CSS, and a Vite 8 build excludes `Features.LightDark`.
+- `figcraft/toghen-target.md` gains a 0.1.17 row in *Since 0.1.0*.
+
+**What the check found.**
+
+- The skills said a usage error of `toghen-query` exits 1. At 0.1.0 it exited 2, since `main` rejected; 0.1.1 makes it 1, so the sentence is true now.
+- `toghen-query check` still prints four sections. Lib 0.2.0's `sameCssName` is not among them.
+
+**Kept as it was:** the Figma and FigCraft facts, and lib's value rules in the pipeline (*What a token's value may hold*), which the fixes of 23 November do not change.

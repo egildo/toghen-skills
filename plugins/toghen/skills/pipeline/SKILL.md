@@ -2,11 +2,11 @@
 name: pipeline
 description: Use when a repository's design tokens (DTCG token files, a resolver document) and component or artboard files (.component.kdl, .artboard.kdl) must become CSS, Figma variables, styles and component sets, or the same in a FigCraft file, through Toghen's toghen-figma command line. Covers the order of a run and why, what a token's value may hold, dry runs first (skips by cause, --verbose), pairing with the Figma plugin without blocking, FigCraft live and headless (--figcraft, --figcraft-file), libraries in both (--library, lock, --use), checks with no target, drift, --overwrite-drift and --allow-breaking, exit codes, what needs a person, and the assets Toghen does not make.
 license: MIT
-compatibility: "Documents Toghen @toghen/figma 0.1.16 (lib 0.1.0, postcss 0.1.0, query 0.1.0; before the split lib 6.0.0, postcss 0.21.0, query 0.2.0) and FigCraft 0.18.1, checked 23 November 2026"
+compatibility: "Documents Toghen @toghen/figma 0.1.17 (lib 0.2.0, postcss 0.2.0, query 0.1.1; before the split lib 6.0.0, postcss 0.21.0, query 0.2.0) and FigCraft 0.18.1, checked 25 November 2026"
 metadata:
   documents: "toghen"
-  version: "0.1.16"
-  checked: "2026-11-23"
+  version: "0.1.17"
+  checked: "2026-11-25"
 allowed-tools: Bash Read Grep Glob
 ---
 
@@ -16,15 +16,15 @@ allowed-tools: Bash Read Grep Glob
 
 | What | Version | Source |
 |---|---|---|
-| `@toghen/figma` (the `toghen-figma` command and the Figma plugin) | 0.1.16 (0.1.0 was 7.0.1 before the split) | `figma/package.json`; npm |
-| `@toghen/lib` | 0.1.0 (6.0.0 before the split) | `lib/package.json` |
-| `@toghen/postcss` | 0.1.0 (0.21.0 before the split) | `postcss/package.json` |
-| `@toghen/query` (`toghen-query`) | 0.1.0 (0.2.0 before the split) | `query/package.json` |
-| FigCraft app and `figcraft-cli` | 0.18.1; Toghen's FigCraft target was measured against 0.9.0 and 0.10.0. A headless run needs `figcraft-cli` 0.8.0 or later, and figma 0.1.16 or later against `figcraft-cli` 0.15.1 or later | `figma/decisions.md` (*What the build found: finishing the FigCraft target*, *headless FigCraft runs*, *the stamps were read with a depth figcraft-cli refuses*); FigCraft's `docs/` at tag `v0.18.1` |
+| `@toghen/figma` (the `toghen-figma` command and the Figma plugin) | 0.1.17 (0.1.0 was 7.0.1 before the split) | `figma/package.json`; npm |
+| `@toghen/lib` | 0.2.0 (0.1.0 was 6.0.0 before the split) | `lib/package.json` |
+| `@toghen/postcss` | 0.2.0 (0.1.0 was 0.21.0 before the split) | `postcss/package.json` |
+| `@toghen/query` (`toghen-query`) | 0.1.1 (0.1.0 was 0.2.0 before the split) | `query/package.json` |
+| FigCraft app and `figcraft-cli` | 0.18.1; Toghen's FigCraft target was measured against 0.9.0 and 0.10.0. A headless run needs `figcraft-cli` 0.8.0 or later, and figma 0.1.16 or later against `figcraft-cli` 0.15.1 or later. A headless `--library` run needs figma 0.1.17 or later | `figma/decisions.md` (*What the build found: finishing the FigCraft target*, *headless FigCraft runs*, *the stamps were read with a depth figcraft-cli refuses*, *what the review of 23 November 2026 found*); FigCraft's `docs/` at tag `v0.18.1` |
 | Figma | the desktop app only; the browser app is not measured | `figma/decisions.md` (*Open questions › The command line*) |
-| Checked | 23 November 2026, against figma 0.1.16: the usage text in `cli/main.ts`, the lines `cli/run.ts` prints, and the releases since 0.1.10 (`figma/decisions.md`, 29 October to 7 November); FigCraft 0.18.1 from its docs at the tag and `figcraft-cli commands --json`, with no app run; the headless runs against `figcraft-cli` 0.18.1 that the review of 23 November 2026 made (house, `.reference/plans/workspace/review-2026-11-23.md`). 27 October 2026, against figma 0.1.10: the usage text, `--skip-unchanged`, `--prune` and the messages added since 0.1.0 (`figma/decisions.md`, the entries of 25 to 27 October). Before that, 24 October 2026, against figma 7.0.0, now 0.1.0 (computed values, skips by cause, the new `check` refusals, components in dependency order) and query 0.2.0, now 0.1.0: the usage text, `check`, `members`, `toghen-query check` and the CSS build run on the example | `.reference/skills-research/pipeline-2026-10-23.md`; `figma/.reference/plans/plan-2026-10-23-figcraft-libraries.md`; `lib/.reference/plans/plan-2026-10-24-computed-values.md`; `figma/.reference/plans/plan-2026-10-24-issues.md` (each plan's *What the build found*) |
+| Checked | 25 November 2026, against figma 0.1.17, lib 0.2.0, postcss 0.2.0 and query 0.1.1, each read at its tag: the decisions entries of 23 November 2026, the usage text in `figma/cli/main.ts` and `query/src/main.ts`, the lines `figma/cli/*.ts` prints, `postcss/reference.md` (*Messages*) and `postcss/guide.md` (*When Lightning CSS runs after the plugin*); no command was run. 23 November 2026, against figma 0.1.16: the usage text in `cli/main.ts`, the lines `cli/run.ts` prints, and the releases since 0.1.10 (`figma/decisions.md`, 29 October to 7 November); FigCraft 0.18.1 from its docs at the tag and `figcraft-cli commands --json`, with no app run; the headless runs against `figcraft-cli` 0.18.1 that the review of 23 November 2026 made (house, `.reference/plans/workspace/review-2026-11-23.md`). 27 October 2026, against figma 0.1.10: the usage text, `--skip-unchanged`, `--prune` and the messages added since 0.1.0 (`figma/decisions.md`, the entries of 25 to 27 October). Before that, 24 October 2026, against figma 7.0.0, now 0.1.0 (computed values, skips by cause, the new `check` refusals, components in dependency order) and query 0.2.0, now 0.1.0: the usage text, `check`, `members`, `toghen-query check` and the CSS build run on the example | each repository's `decisions.md` at its tag, the entries of 23 November 2026; house, `.reference/plans/workspace/plan-2026-11-23-lightningcss.md`; `.reference/skills-research/pipeline-2026-10-23.md`; `figma/.reference/plans/plan-2026-10-23-figcraft-libraries.md`; `lib/.reference/plans/plan-2026-10-24-computed-values.md`; `figma/.reference/plans/plan-2026-10-24-issues.md` (each plan's *What the build found*) |
 
-If the installed Toghen is newer, read `figma/cli/main.ts` (the usage text) and the guide before trusting a flag here.
+If the installed Toghen is newer, read `toghen-figma --help` (the usage text in `figma/cli/main.ts`) and the guide before trusting a flag here.
 
 Detail, read when needed:
 
@@ -111,7 +111,7 @@ Why:
 | **Checks, no target** | `toghen-figma check …`, `toghen-figma members …`, `toghen-query --doc … check`, the CSS build | Nothing | Yes |
 | **Figma, paired** | `toghen-figma variables \| components \| sync …` | Figma desktop; the target file open; the Toghen plugin running in it; paired; port 3055 free; every `--page` existing | No |
 | **FigCraft, live** | the same, with `--figcraft <port>` | FigCraft started with `--control <port>`; the target file shown in its front window; every `--page` existing; nobody else driving that instance | No |
-| **FigCraft, headless** | the same, with `--figcraft-file <path.figcraft>` | `figcraft-cli` ≥ 0.8.0, ≥ 0.15.1 only with figma ≥ 0.1.16; the folder of the path existing | Yes |
+| **FigCraft, headless** | the same, with `--figcraft-file <path.figcraft>` | `figcraft-cli` ≥ 0.8.0, ≥ 0.15.1 only with figma ≥ 0.1.16; with `--library`, figma ≥ 0.1.17; the folder of the path existing | Yes |
 
 ### Checks, no target
 
@@ -168,7 +168,7 @@ toghen-figma sync tokens/mini.resolver.json components/*.component.kdl --figcraf
 
 - No app, no window, no person. The command starts `figcraft-cli mcp` itself.
 - **Saved whole or not at all.** A dry run saves nothing. A run that stops partway saves nothing and exits 1: `design/mini.figcraft was not saved: the run did not complete.` A run that completes prints `Saved design/mini.figcraft.`
-- A path with no file starts a new file. Its folder must exist, or the save fails and the run exits 1.
+- A path with no file starts a new file. Its folder must exist: a missing one stops the run before it starts, exit 1, with nothing written. The same holds for a `--library` file the run builds.
 - A new file has one page, `Page 1`. Omit `--page`, or create the page in FigCraft once, save, and commit the file.
 - Fonts are the machine's. `FIGCRAFT_NO_SYSTEM_FONTS=1` gives every machine FigCraft's own fonts only. It also narrows what `text.fonts` lists, which the style plan reads: a text style in a system font then falls back to a later family in its stack, or is skipped.
 - Commit the saved file, or keep it as the job's artifact (`figma/guide.md`, *A FigCraft file with no app: continuous integration*).
@@ -230,7 +230,7 @@ Read the dry run's output in this order:
 3. **`drifted:` lines** for variables and styles, and **`left:` lines** for components (`"<field>" was changed in Figma since Toghen wrote it`). These are hand edits, kept unless the person decides otherwise.
 4. **`warning:` and `skipped:` lines.** Font fallbacks, values Figma cannot hold, the mode limit. Skips are grouped by cause: every cause but `unchanged` lists its rows as `skipped: <reason>`, ten per cause, then `…and N more; --verbose lists them`. `--verbose` lists every skip, `unchanged: <path>` included, and every patch of a set as `patch <member> <address>: <fields>`.
 5. **`pending:` lines.** Names a dry run counts as present because an earlier step would create them: variables, styles, modes, and the sets a component file earlier in the run builds. They are expected in a dry run.
-6. **The counts.** `Variable plan: 3 creates · 0 updates · 239 skips (180 unchanged · 40 cannot be written · 19 unsupported type)`, most frequent cause first, then `modes`, `scopes`, `warnings` and `breaking` when not zero; the same for `Style plan:`. Then `<Component> (dry run): N steps · c created · n would update · d deleted`: the members a real run would write to, then `· b breaking` and `· n drifted` when not zero, the fields kept as hand edits. An artboard's dry run counts layers, `N steps · c would create · u would update · d would delete`, and lists them. A second run with nothing changed plans nothing: `0 would update`, in FigCraft too.
+6. **The counts.** `Variable plan: 3 creates · 0 updates · 239 skips (180 unchanged · 40 cannot be written · 19 unsupported type)`, most frequent cause first, then `modes`, `scopes`, `warnings` and `breaking` when not zero; the same for `Style plan:`. Then `<Component> (dry run): N steps · c would create · u would update · d would delete`: the members a real run would make, write to and delete, then `· b breaking` and `· n drifted` when not zero, the fields kept as hand edits. An artboard's dry run counts layers, `N steps · c would create · u would update · d would delete`, and lists them. A second run with nothing changed plans nothing: `0 would update`, in FigCraft too.
 7. **With `--prune`, `breaking: the set … has no source`.** A set or artboard no file of the run declares. The dry run exits 1 for it. If its file was only left out of this run, add it back; if it was deleted, removing it is the person's call (`--allow-breaking`).
 
 Two dry runs serve two purposes. Without flags it reads and compares everything, and finds hand edits. With `--skip-unchanged`, after one real run has stamped the fingerprints, it leaves alone each set and artboard whose inputs have not changed, and answers in seconds on a large file; it does not look for hand edits there.
@@ -281,7 +281,7 @@ Never add either flag to make a run pass. Never put either in a default npm scri
 |---|---|---|---|
 | `toghen-figma variables \| components \| sync` | Every step succeeded. A dry run with breaking steps listed still exits 0 | A check failed; component files name each other in a cycle; a plan stopped; a breaking step was refused; Figma or FigCraft refused a write; the plugin went away; a component was not built; a headless save failed | — |
 | `toghen-figma check`, `members` | No file has an error (warnings do not count) | A file has an error, or cannot be read | — |
-| `toghen-query` one query | An answer, `help` included; a `check` that lists only collisions | An `error: …`, a usage error, an unknown command, a `check` with `incomplete`, `holes` or `non-factorable` entries; a replayed `--session` that differs | 2: the document did not load. The prompt always exits 0 |
+| `toghen-query` one query | An answer, `help` included; a `check` that lists only collisions | An `error: …`, a usage error, an unknown command, an `across` with a row the core threw for, a `check` with `incomplete`, `holes` or `non-factorable` entries; a replayed `--session` that differs | 2: the document did not load. The prompt always exits 0 |
 
 - **A failed component does not stop the others.** Look for `<file>: was not built:` or `was not planned:` lines, even when later components succeed.
 - Problems go to standard error. Plans and reports go to standard output. Read both.
@@ -335,7 +335,7 @@ toghen-figma sync tokens/mini.resolver.json components/*.component.kdl --figcraf
 toghen-figma components docs/chip.artboard.kdl --resolver tokens/mini.resolver.json --input docs/chip.data.json --figcraft-file design/app.figcraft --use design/kit.figcraft
 ```
 
-- The run builds in `kit.figcraft` (made if it does not exist), publishes and saves it, then in the target enables it, accepts its updates and writes the lock entry `kit`. Headless, both files are open in one session and the target is saved last; against `figcraft-cli` 0.18.1 this fails at figma 0.1.16 (*Known limits*). Live, the target is the file FigCraft shows, and the person saves it.
+- The run builds in `kit.figcraft` (made if it does not exist), publishes and saves it, then in the target enables it, accepts its updates and writes the lock entry `kit`. Headless, both files are open in one session and the target is saved last. This needs figma 0.1.17 or later: before, every headless library run failed against `figcraft-cli` 0.18.1. Live, the target is the file FigCraft shows, and the person saves it.
 - A dry run builds, publishes and accepts nothing, and says what updates wait. A failed build publishes nothing.
 - `toghen-figma lock design/kit.figcraft --figcraft-file design/app.figcraft` does the target's half alone, after a library published by hand.
 - Keys are `<library id>:<asset id>`. A Figma key in a component file is refused by name. Name components by name and declare the library.
@@ -378,7 +378,6 @@ A component **set** that Toghen did not make, with the name of a component file,
 | Figma: a `--use` library collection's mode in `modes` is refused until measured | Pin it in FigCraft, or use a local collection |
 | Figma: an instance's size after a variant switch, and a bound size beside `HUG`, are not measured (`check` refuses the second) | Look at the result in the desktop app |
 | A data value that arrives as exactly one reference and lands on `characters` is read as a token reference, `{{…}}` included | Keep text around the braces, or put the text in the artboard file |
-| FigCraft, headless: `--figcraft-file` with `--library` fails against `figcraft-cli` 0.18.1. FigCraft leaves `path` out of `doc.list` for an MCP call, and figma 0.1.16 finds the library's tab by its path. An existing library stops with `FigCraft did not open <path>.`; a new one is published and saved, then reported not saved, and the target is left unsaved | Build the library live, with `--figcraft <port>`: over the control socket `doc.list` keeps paths |
 
 ---
 

@@ -2,11 +2,11 @@
 name: figcraft
 description: Use when Toghen writes into FigCraft, the open-source Rust design app with Figma's model (github storytold/figcraft) — `toghen-figma variables | components | sync | lock` with `--figcraft <port>` or `--figcraft-file <path.figcraft>` — or when reading what such a run left behind: its messages, the `-toghen` divider, `toghen.stamp` layer data, drift, the lock, and what Toghen builds in FigCraft and refuses by name. Covers the pinned file, write-then-bind as Toghen meets it, headless runs in CI, FigCraft libraries (`--library <file.figcraft>`, `lock`, `--use`, keys, preferred values by name, a library collection's mode in `modes`), instance sizes on an artboard, and the few driving essentials a reader needs. For driving FigCraft itself, use `artcraft:figcraft`. Not the Figma plugin of the same name.
 license: MIT
-compatibility: Documents FigCraft 0.18.1 (app and figcraft-cli), docs tag v0.18.1, through Toghen @toghen/figma 0.1.16; checked 23 November 2026 from FigCraft's docs and command list, its behaviour measured against 0.10.0
+compatibility: Documents FigCraft 0.18.1 (app and figcraft-cli), docs tag v0.18.1, through Toghen @toghen/figma 0.1.17; checked 25 November 2026 against figma's docs and source at its tag, FigCraft from its docs and command list on 23 November 2026, its behaviour measured against 0.10.0
 metadata:
   documents: figcraft
   version: "0.18.1"
-  checked: "2026-11-23"
+  checked: "2026-11-25"
 allowed-tools: Bash Read
 ---
 
@@ -15,10 +15,10 @@ allowed-tools: Bash Read
 | Pinned | Value | Source |
 |---|---|---|
 | App | FigCraft 0.18.1 (12 November 2026) | `gh release list -R storytold/figcraft` |
-| Command line | `figcraft-cli` 0.18.1; a headless run needs 0.8.0 or later, and from `figcraft-cli` 0.15.1 it needs figma 0.1.16 or later | the same release |
+| Command line | `figcraft-cli` 0.18.1; a headless run needs 0.8.0 or later, and from `figcraft-cli` 0.15.1 it needs figma 0.1.16 or later; a headless `--library` run needs figma 0.1.17 or later | the same release |
 | Docs | tag `v0.18.1` | `docs/` in the repository at the tag, never `main`; the command list in `.reference/skills-research/figcraft-commands-0.18.1.txt` |
-| Toghen | `@toghen/figma` 0.1.16 (0.1.0 was 7.0.1 before the split): the FigCraft target with libraries, an unchanged run that writes nothing, a library collection's mode, instance sizes; since 0.1.1, large files read once, `--skip-unchanged`, `--prune`, artboard dry-run counts, and the fixes in `toghen-target.md` (*Since 0.1.0*) | `figma/specs.md`, *FigCraft*; `reference.md`, *Into FigCraft*, *Headless*, *The lock*; `figma/.reference/plans/plan-2026-10-23-figcraft-libraries.md`; `figma/.reference/plans/plan-2026-10-24-issues.md` (*What the build found*) |
-| Checked | 23 November 2026, FigCraft 0.18.1 from its release notes since 0.10.0, its `docs/` at the tag and `figcraft-cli commands --json`, with no app run; the headless runs of figma 0.1.16 against `figcraft-cli` 0.18.1 that the review of 23 November 2026 made (house, `.reference/plans/workspace/review-2026-11-23.md`). What FigCraft does as Toghen meets it (write, then bind; reused ids; what is not reported) was measured against 0.10.0 and not again. 23 October 2026, against a running 0.10.0 app and `figcraft-cli` 0.10.0, in files of the check's own. 24 October 2026, the Toghen side against figma 7.0.0's docs (now 0.1.0) and usage text. 25 to 27 October 2026, each change of figma 0.1.1 to 0.1.10 reproduced headless against `figcraft-cli` 0.10.0 with synthetic files | `figma/decisions.md`, the entries of 25 October to 7 November; `.reference/skills-research/figcraft-2026-11-23.md` |
+| Toghen | `@toghen/figma` 0.1.17 (0.1.0 was 7.0.1 before the split): the FigCraft target with libraries, an unchanged run that writes nothing, a library collection's mode, instance sizes; since 0.1.1, large files read once, `--skip-unchanged`, `--prune`, artboard dry-run counts, headless library runs, and the fixes in `toghen-target.md` (*Since 0.1.0*) | `figma/specs.md`, *FigCraft*; `reference.md`, *Into FigCraft*, *Headless*, *The lock*; `figma/.reference/plans/plan-2026-10-23-figcraft-libraries.md`; `figma/.reference/plans/plan-2026-10-24-issues.md` (*What the build found*) |
+| Checked | 25 November 2026, the Toghen side against figma 0.1.17: `figma/decisions.md` (*Fixed: what the review of 23 November 2026 found*), `reference.md` (*Into FigCraft*, *Headless*) and `cli/figcraft.ts`, read at the tag `v0.1.17`, with no run. 23 November 2026, FigCraft 0.18.1 from its release notes since 0.10.0, its `docs/` at the tag and `figcraft-cli commands --json`, with no app run; the headless runs of figma 0.1.16 against `figcraft-cli` 0.18.1 that the review of 23 November 2026 made (house, `.reference/plans/workspace/review-2026-11-23.md`). What FigCraft does as Toghen meets it (write, then bind; reused ids; what is not reported) was measured against 0.10.0 and not again. 23 October 2026, against a running 0.10.0 app and `figcraft-cli` 0.10.0, in files of the check's own. 24 October 2026, the Toghen side against figma 7.0.0's docs (now 0.1.0) and usage text. 25 to 27 October 2026, each change of figma 0.1.1 to 0.1.10 reproduced headless against `figcraft-cli` 0.10.0 with synthetic files | `figma/decisions.md`, the entries of 25 October to 23 November; `.reference/skills-research/figcraft-2026-11-23.md` |
 
 FigCraft runs no Figma plugin, so Toghen reaches it from its command line. It uses FigCraft's own control socket, or a headless `figcraft-cli mcp` with no app. The plans, the dry run, the stamps and the report are the Figma run's; only the reads and the writes are FigCraft's.
 
@@ -45,7 +45,7 @@ Enough to follow a run and check its result. The full material, with the field t
 - **MCP.** `figcraft-cli mcp --attach <port>` wraps the same socket. `figcraft-cli mcp` alone is a long headless session with no window: `run_command {command, params}` runs the same commands, `open_file` and `save_file` handle the file. An MCP call is an agent's, so `doc.list` gives it each file's `id` and name and no `path` (since 0.13.1); over the socket, a call that names no `agent` gets the paths.
 - **One-shot scripts.** `figcraft-cli run <script> [--in f] [--out f]` is all-or-nothing, and a failure loses the reads before it. Toghen does not use it.
 
-**Versions.** Keep the app and `figcraft-cli` on one version. Before 0.8.0, `node.get` reports no layer data, so every stamp would read as absent. figma 0.1.15 and earlier asked `node.get` for a `depth`, which `figcraft-cli` 0.15.1 and later refuse: every headless run of theirs stops at reading the stamps. Use figma 0.1.16 or later.
+**Versions.** Keep the app and `figcraft-cli` on one version. Before 0.8.0, `node.get` reports no layer data, so every stamp would read as absent. figma 0.1.15 and earlier asked `node.get` for a `depth`, which `figcraft-cli` 0.15.1 and later refuse: every headless run of theirs stops at reading the stamps. Use figma 0.1.16 or later, and 0.1.17 or later for a headless `--library` run.
 
 **The pinned batch.** A command acts on the tab the window shows, never on a file it names, and tabs move. Every Toghen write is one request:
 
@@ -63,7 +63,7 @@ Over the socket it also names the `window`. One batch is one undo step, rolled b
 ## What a run does
 
 **`--figcraft <port>`, live.**
-- It prints `Writing into "<file>" in FigCraft on port <port>.` and pins that file: the tab's index, name and path.
+- It prints `Writing into "<file>" in FigCraft on port <port>.` and pins that file: its tab's index, and the file by the `id` `doc.list` gives it, or by its name and path where it gives none.
 - Someone looking at another tab during the run sees the target come back, and the write still lands in it.
 - If a tab before the target closes, the target moves and the run stops: `FigCraft no longer has "<file>" at the tab it was in …`. The step it was on may have gone into the file now at that index; undo it there.
 - Nothing listening on the port stops the run with exit 1: `Nothing answered on 127.0.0.1:<port>: … Start FigCraft with --control <port>.`
@@ -72,13 +72,14 @@ Over the socket it also names the `window`. One batch is one undo step, rolled b
 **`--figcraft-file <path.figcraft>`, headless.**
 - It starts `figcraft-cli mcp`: the binary named by `FIGCRAFT_CLI`, else the one on the PATH. A version below 0.8.0 stops the run before anything is opened.
 - It prints `Writing into <path> headless, with figcraft-cli <version>.`
-- It opens the file, or starts a new one when the path has none; the folder must exist.
-- **With `--library`, it fails against `figcraft-cli` 0.18.1** (figma 0.1.16): the library's tab is found by the `path` that `doc.list` no longer gives an MCP call. An existing library stops with `FigCraft did not open <path>.`; a new one is published and saved, then reported not saved, and the target is left unsaved. Build the library live, with `--figcraft <port>`.
+- It opens the file, or starts a new one when the path has none. The folder must exist: a missing one stops the run before it starts, `--figcraft-file <path>: the folder <folder> does not exist, …`.
+- **With `--library`,** the library is a second file in the same session. Its tab is the index `open_file` answers, and the file is known by its `id`, since `doc.list` gives an MCP call no `path`. Before figma 0.1.17 the tab was found by that path, so every headless `--library` run failed against `figcraft-cli` 0.18.1.
+- **It gives up on a silent session.** `initialize` is waited for 60 s, every later request 10 minutes; then the run stops, exit 1: `<cli> mcp did not answer <command> within <s> s, so the session was stopped`.
 - **It saves whole or not at all.** `Saved <path>.` comes only after every step and the stamps. A run that stopped partway says `<path> was not saved: the run did not complete.`, exits 1, and leaves the file on disk as it was. A dry run never saves.
 - **Fonts are the machine's.** `FIGCRAFT_NO_SYSTEM_FONTS=1` in the environment narrows them to FigCraft's own on every machine. It also changes what `text.fonts` lists, so a text style naming a system family falls back or is skipped.
 - This is the CI route: Figma cannot run in CI, but a `.figcraft` file can be synced and committed.
 
-**A dry run of a set** says `<Name> (dry run): N steps · c created · n would update · d deleted`, the members a real run would write to, then `· b breaking` and `· n drifted` when not zero; `--verbose` adds `patch <member> <address>: <fields>` per patch. An artboard's counts layers: `N steps · c would create · u would update · d would delete`. So a freshness check in CI can read `0 would update`.
+**A dry run of a set** says `<Name> (dry run): N steps · c would create · u would update · d would delete`, the members a real run would make, write to and delete, then `· b breaking` and `· n drifted` when not zero; `--verbose` adds `patch <member> <address>: <fields>` per patch. An artboard's counts layers: `N steps · c would create · u would update · d would delete`. So a freshness check in CI can read `0 would update`.
 
 **Large files.** A run reads the file once, and again only what its writes reached. For a check that must answer in seconds, `--skip-unchanged` leaves alone each set and artboard whose inputs are as the last real run stamped them, and a dry run with it reads a frame's insides only where it compares it; it does not see hand edits there. Measured with synthetic files against `figcraft-cli` 0.10.0: 9,686 layers in 80 artboards, a dry run 2.7 s, 1.5 s with the flag; a build 10.4 s. See `toghen-target.md`, *Since 0.1.0*.
 
@@ -95,7 +96,7 @@ toghen-figma sync tokens/mini.resolver.json components/*.component.kdl --figcraf
 toghen-figma sync tokens/mini.resolver.json components/*.component.kdl --figcraft-file design/app.figcraft --library design/kit.figcraft
 ```
 
-1. **Both files are pinned.** Live, the library is used in its tab if open, else opened in a tab and left open. Headless, both files are open in one `figcraft-cli mcp` session; against `figcraft-cli` 0.18.1 that fails at figma 0.1.16 (*What a run does*). A library file that does not exist yet is made. A target that is the library itself stops the run.
+1. **Both files are pinned.** Live, the library is used in its tab if open, else opened in a tab and left open. Headless, both files are open in one `figcraft-cli mcp` session, the library's tab the index its opening answers (figma 0.1.17 or later; *What a run does*). A library file that does not exist yet is made. A target that is the library itself stops the run.
 2. **The build goes into the library**: variables, styles, component files, as any run.
 3. **The library is published** (`library.publish`, local) **and saved** at its path.
 4. **In the target:** the library is enabled (`library.add`, which also re-points a moved file: the library's id lives in its file), that library's updates are accepted and no other's, and the target's lock is written from the target's own listing of it (`library.list {assets}`).

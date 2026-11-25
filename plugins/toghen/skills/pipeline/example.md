@@ -238,7 +238,7 @@ What the file should hold afterwards:
   - `density`: `regular` and `compact`.
   - `state`: `rest`, `hover` and `pressed`. It holds `chip/backgroundColor`, folded from the parts.
 - **Variables.** Each has its CSS name as web code syntax, such as `var(--chip-background-color)`. `palette/*` is in no picker.
-- **Text styles.** `type/label` and `chip/font`, from the default mode. The plan warns that styles have no modes.
+- **Text styles.** `type/label` and `chip/font`, from the default mode. The plan warns that styles have no modes. From figma 0.1.17 it also warns, for both, that `fontWeight` 500 is not held: `type.label` names no `fontStyle`, and `chip.font` is one whole reference to it, so each style is `Regular`.
 - **The set `Chip`.** Properties `Label` and `state`; three members, each pinning its `state` mode. Fills, paddings, radius, caption fill and text style are bound to the variables and the style.
 - **The artboard `Chip reference`.** A title and two `Chip` instances, labelled `Default` and `Selected`.
 

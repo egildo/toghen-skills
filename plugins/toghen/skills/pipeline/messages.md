@@ -1,6 +1,6 @@
 # Messages a run prints, and what to do
 
-*Pinned to `@toghen/figma` 0.1.16 (lib 0.1.0, postcss 0.1.0) and `@toghen/query` 0.1.0 (lib 6.0.0, postcss 0.21.0 and query 0.2.0 before the split), checked 23 November 2026 against what `figma/cli/*.ts` prints; lib, postcss and query as of 24 October 2026. Text in `<angle brackets>` varies. Sources: `figma/cli/*.ts`, `figma/main/components/resolve.ts`, `figma/reference.md`, `postcss/reference.md` (*Messages*).*
+*Pinned to `@toghen/figma` 0.1.17 (lib 0.2.0, postcss 0.2.0) and `@toghen/query` 0.1.1 (lib, postcss and query 0.1.0 were 6.0.0, 0.21.0 and 0.2.0 before the split), checked 25 November 2026 against what `figma/cli/*.ts` and `figma/main/engines/styleSyncEngine.ts` print, `postcss/reference.md` (*Messages*) and `query/guide.md`, each at its tag. Checked before on 23 November 2026 against figma 0.1.16, and lib, postcss and query as of 24 October 2026. Text in `<angle brackets>` varies. Sources: `figma/cli/*.ts`, `figma/main/components/resolve.ts`, `figma/reference.md`, `postcss/reference.md` (*Messages*).*
 
 Problems go to standard error, plans and reports to standard output. A message that ends a run is marked **stops**.
 
@@ -24,7 +24,7 @@ Problems go to standard error, plans and reports to standard output. A message t
 | `--figcraft takes the port FigCraft's control socket listens on, a number; got <x>` **stops** | | Give the port |
 | `no component file given` **stops** | `check`, `members` or `components` with no `.kdl` | Add the files |
 | `--overrides <file> cannot be read as JSON: …` / `… must hold one JSON object: …` **stops** | | Fix the map |
-| `<file> cannot be read: …` **stops** | | Fix the path; paths are relative to where the command was typed |
+| `<file> cannot be read: …` **stops** | | Fix the path; paths are relative to the directory the command runs in (`commands.md`, *How to call it*) |
 | `the component files name each other in a cycle, so none of them can be built first: a.component.kdl → b.component.kdl → a.component.kdl; nothing was written` **stops** | Files run in dependency order, and these cannot | Take one of the instances out |
 | `<entry>: $ref "<ref>" in "<file>" …` **stops** | `load` could not follow a reference: a missing or non-JSON file, a pointer to nothing, a cycle, token files with no common folder and no `--name` | Read the message; it names the reference and its file |
 
@@ -38,6 +38,7 @@ Problems go to standard error, plans and reports to standard output. A message t
 | `The plugin is paired.` / `Both plugins are paired.` | | Read on |
 | `port 3055 is taken: another toghen-figma, or another program, is listening on it. …` **stops** | One run at a time | Stop the other run |
 | `5 connections gave a wrong pairing code, so the run stopped. …` **stops** | | Check what else uses port 3055; run again |
+| `another plugin window paired with the same code and took the place of the one answering, so its answer will not come` **stops** | A second Toghen window paired with the run's code during the run; the first stops trying | Keep one plugin window per file; run again |
 | `the plugin disconnected: it was closed, or Figma lost it` / `the plugin is not connected` **stops** | Earlier writes stay | Reopen the plugin, pair, run again; the next run completes the writes |
 | Plugin screen: `Nothing answered on localhost:3055 (tried at <time>). Run toghen-figma; this keeps trying.` | No run is waiting | Start the run |
 | Plugin screen: `The command line did not accept that code (<time>). Type the one it printed.` | A code from before the plugin closed | Type the code the current run printed |
@@ -83,12 +84,13 @@ The plan prints `Variable plan: <c> creates · <u> updates · <s> skips (<n> <ca
 | `skipped: "<path>" is defined only in theme=dark and has no value where theme=light, the default; …` | | Give it a default value |
 | `note: N variables are offered to every field: …; declare figma.scopes to narrow them.` | | Optional: add `figma.scopes` |
 | `"<style>" uses "<family>": "<a>" and "<b>" are not available in Figma.` | A font fallback on this machine | Install the face, or accept it |
+| `"<path>.fontWeight" is <weight>, which the text style cannot hold: a text style takes its weight from its font style, and the token names none, so the style is "Regular".` | A typography token with a literal `fontWeight` and no `fontStyle`, on every plan, 400 included. No weight is turned into a style name | Add a `fontStyle` member, or accept the style named |
 | `"<component>": "<axis>" stays in the path, one variable per part: …` | How parts became variables | Informational |
 | `Variable sync: <a> applied · <s> skipped · <f> failed[ · <c> cancelled]` then `failed: <reason>` and `Variable sync did not complete, so no component was run.` **stops** | Figma refused a write. `skipped` counts skips, failed prerequisites and cancellations, not warnings or notes | Read the reason; run again after fixing |
 
 ## Components and artboards
 
-The report prints `<Name>: N steps · c created · u updated · d deleted[ · b breaking][ · n drifted]`, the last the fields kept as hand edits, each with its `left:` line below. A set's dry run says `<Name> (dry run): N steps · c created · n would update · d deleted`, the members a real run would write to, with the same `breaking` and `drifted` counts, and with `--verbose` one line per patch, `  patch <member> <address>: <fields>`. An artboard's dry run counts layers: `<Name> (dry run): N steps · c would create · u would update · d would delete`; a removed layer counts once, with what it holds. With `--skip-unchanged`, a set or artboard left alone says `<Name> (dry run): unchanged, its fingerprint the same; not read` (without `(dry run)` in a real run). Then lines starting `pending:`, `breaking:`, `warning:`, `left:`. An artboard's dry run lists its layers: `create`, `patch`, `replace`, `move`, `remove`, and `swap` for an instance Toghen made whose component the lock now answers with another (the relink).
+The report prints `<Name>: N steps · c created · u updated · d deleted[ · b breaking][ · n drifted]`, the last the fields kept as hand edits, each with its `left:` line below. A set's dry run says `<Name> (dry run): N steps · c would create · u would update · d would delete`, the members a real run would make, write to and delete, with the same `breaking` and `drifted` counts, and with `--verbose` one line per patch, `  patch <member> <address>: <fields>`. An artboard's dry run counts layers: `<Name> (dry run): N steps · c would create · u would update · d would delete`; a removed layer counts once, with what it holds. With `--skip-unchanged`, a set or artboard left alone says `<Name> (dry run): unchanged, its fingerprint the same; not read` (without `(dry run)` in a real run). Then lines starting `pending:`, `breaking:`, `warning:`, `left:`. An artboard's dry run lists its layers: `create`, `patch`, `replace`, `move`, `remove`, and `swap` for an instance Toghen made whose component the lock now answers with another (the relink).
 
 A component that cannot run prints `<file>: was not planned: <headline>` or `<file>: was not built: <headline>`, then `  - <problem>` lines. **The run goes on to the next file and exits 1 at the end.**
 
@@ -129,9 +131,11 @@ A component that cannot run prints `<file>: was not planned: <headline>` or `<fi
 | `<cli> is <version>: a headless run needs figcraft-cli 0.8.0 or later, …` **stops** | | Upgrade to the app's version |
 | `Saved <path>.` | Headless, completed | Commit the file, or keep it as an artifact |
 | `<path> was not saved: the run did not complete.` (exit 1) | Headless, stopped partway | The file is as it was; fix and rerun |
-| A save error such as `No such file or directory` (exit 1) | The folder does not exist | Create the folder |
-| `FigCraft did not open <path>.` **stops** | Headless with `--library`: the library exists, and `figcraft-cli` 0.18.1 lists no paths to an MCP call, so figma 0.1.16 cannot find its tab | Build the library live, with `--figcraft <port>` |
-| `FigCraft no longer has "<name>" at the tab it was in: it was not saved at <path>.` (exit 1) | Headless with `--library`: a new library was published and saved, then not found by its path, for the same reason; the target is not saved | The same |
+| `--figcraft-file <path>: the folder <folder> does not exist, so the run could not save the file there; nothing was written` (or `--library <path>: …` for a library the run builds) **stops** | Checked before the run reaches FigCraft | Create the folder |
+| `<cli> mcp did not answer <command> within <s> s, so the session was stopped` (exit 1) | Headless: `initialize` waits 60 s, every later request 10 minutes | Check that the binary runs; run again |
+| `<cli> mcp wrote what is not MCP on its standard output: "<line>"` (exit 1) | Headless: something printed to standard output beside MCP | Check what `FIGCRAFT_CLI` or the PATH names |
+| `FigCraft did not open <path>.` **stops** | With `--library`: FigCraft answered a tab's index for the library, and `doc.list` lists no tab there | Run again; report it if it repeats |
+| `FigCraft no longer has "<name>" at the tab it was in: it was not saved at <path>.` (exit 1) | With `--library`: at its save, the library's tab was gone or held another file; the target is not saved | Leave the tabs alone during a run; run again |
 | `will not build "<component>": nothing was written` **stops**, then lines such as: | FigCraft refuses something by name | Leave that out of FigCraft, or build it in Figma only |
 | ` "<c>" <address>: a component named by a Figma key is not built in FigCraft, whose keys are <library id>:<asset id>; name the component, and declare its library with --use` | | Name it, and `--use` its library |
 | ` "<c>": the preferred values of "<p>" name Figma's published keys, which FigCraft does not hold; name the components with name=` | | `preferred COMPONENT name="…"` |
@@ -189,7 +193,11 @@ The run publishes, enables and accepts; nothing is a person's step but saving th
 | `Cannot write the mixins of "ds" inside a layer: …` | Put `@toghen mixins;` at the top level |
 | `"a.b" and "a-b" are both written as the mixin --a-b. …` | Rename one path |
 | Every `@apply` left in the output | List Toghen before the mixins polyfill |
+| `Cannot write token "<path>" (mode: <mode>): No CSS serialisation for a value of shape <keys>. …`, for a token a mixin cannot read | Since postcss 0.2.0 it is reported, and the rest of the mixin is written; under `'throw'` it stops the build |
+| `Cannot write '<token>' with light-dark() for modifier '<modifier>': it has a value in context '<context>' only, …` | Since postcss 0.2.0 it is reported, not dropped. Give it a value in the other context too |
+| `Cannot read "<call>" in "@<name> <params>": t() and toghen() are read in declaration values, not in an at-rule's parameters. …` | Since postcss 0.2.0 it is reported. Write the value in the at-rule |
+| `Cannot resolve token "<path>" …` for a path with a number cut short, such as `palette.orange.1` where the stylesheet says `palette.orange.100` | Lightning CSS ran before Toghen: list Toghen first (`commands.md`, *The CSS build*) |
 
 ## `toghen-query`
 
-Each answer ends with `— <export>`. A one-shot query exits 1 on an `error: …` line, a usage error or an unknown command, and 0 for an answer or `help`. `check` prints `incomplete:`, `holes:`, `non-factorable:` and `collisions:`. Each reads `(none)` on its own line when clean, and is a bare header with indented entries when not. `check` exits 1 when any but `collisions:` has entries.
+Each answer ends with `— <export>`. A one-shot query exits 1 on an `error: …` line, a usage error, an unknown command, or an `across` with a row the core threw for, and 0 for an answer or `help`. `check` prints `incomplete:`, `holes:`, `non-factorable:` and `collisions:`. Each reads `(none)` on its own line when clean, and is a bare header with indented entries when not. `check` exits 1 when any but `collisions:` has entries.
