@@ -1,6 +1,6 @@
 # A worked example: `mini`
 
-*A synthetic design system. `toghen-figma check`, `toghen-figma members`, `toghen-query check` and the CSS build were run on these files on 24 October 2026, at figma 7.0.0, lib 6.0.0 and postcss 0.21.0. The Figma and FigCraft runs were not; what they should end with is read from the code.*
+*A synthetic design system. `toghen-figma check`, `toghen-figma members`, `toghen-query check` and the CSS build were run on these files on 24 October 2026, at figma 7.0.0, lib 6.0.0 and postcss 0.21.0. On 25 November 2026 the same ran again at figma 0.1.17, lib 0.2.0, postcss 0.2.0 and query 0.1.1, from npm, with the same results; the FigCraft runs were made too, headless against `figcraft-cli` 0.18.1 with `FIGCRAFT_NO_SYSTEM_FONTS=1`, and the file ended as below. The Figma runs were not; what they should end with is read from the code.*
 
 ## The files
 
@@ -238,9 +238,9 @@ What the file should hold afterwards:
   - `density`: `regular` and `compact`.
   - `state`: `rest`, `hover` and `pressed`. It holds `chip/backgroundColor`, folded from the parts.
 - **Variables.** Each has its CSS name as web code syntax, such as `var(--chip-background-color)`. `palette/*` is in no picker.
-- **Text styles.** `type/label` and `chip/font`, from the default mode. The plan warns that styles have no modes. From figma 0.1.17 it also warns, for both, that `fontWeight` 500 is not held: `type.label` names no `fontStyle`, and `chip.font` is one whole reference to it, so each style is `Regular`.
+- **Text styles.** `type/label` and `chip/font`, from the default mode. The plan warns that styles have no modes. From figma 0.1.17 it also warns, for both, that `fontWeight` 500 is not held: `type.label` names no `fontStyle`, and `chip.font` is one whole reference to it, so each style is `Regular`. The Caption binds `type/label`, since a text style named through a typography reference binds its target's style; `chip/font` is built and bound by nothing.
 - **The set `Chip`.** Properties `Label` and `state`; three members, each pinning its `state` mode. Fills, paddings, radius, caption fill and text style are bound to the variables and the style.
-- **The artboard `Chip reference`.** A title and two `Chip` instances, labelled `Default` and `Selected`.
+- **The artboard `Chip reference`.** Its frame, `Page`, holds a title and two `Chip` instances, labelled `Default` and `Selected`.
 
 ### C. FigCraft, live
 
@@ -258,7 +258,7 @@ pnpm figcraft:sync
 ```sh
 mkdir -p design
 pnpm figcraft:file:check   # no --page: a new file has only "Page 1"
-pnpm figcraft:file         # ends "Saved design/mini.figcraft."
+pnpm figcraft:file         # ends "Saved /…/design/mini.figcraft."
 git add design/mini.figcraft
 ```
 

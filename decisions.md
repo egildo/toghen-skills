@@ -138,3 +138,43 @@ The entry of 25 October, *With it*, says Biome lints and formats the code and `p
 - `toghen-query check` still prints four sections. Lib 0.2.0's `sameCssName` is not among them.
 
 **Kept as it was:** the Figma and FigCraft facts, and lib's value rules in the pipeline (*What a token's value may hold*), which the fixes of 23 November do not change.
+
+## Measured: the skills against the released tools (25 November 2026)
+
+**Status:** done. The plugin is 0.1.3.
+
+**Why.** The check that made 0.1.2 read the sources at their tags and ran nothing, so step 2 of the routine in [specs.md](specs.md) was open. This entry closes it, for everything but Figma.
+
+**How it was measured.** The worked example was rebuilt from `example.md` in a scratch folder. figma 0.1.17, query 0.1.1, postcss 0.2.0 and lib 0.2.0 were installed from npm. FigCraft ran headless only, against `figcraft-cli` 0.18.1, with `FIGCRAFT_NO_SYSTEM_FONTS=1`. Figma and the FigCraft app were not run.
+
+**What held.**
+
+- `toghen-figma --help` exits 0, and paths are read from the directory the command runs in.
+- `check`, `members` and `toghen-query check` give what `example.md` expects, including the broken copy's three errors.
+- `toghen-query`'s `across`, flags after the query, and every exit code in `commands.md`; `--session` and the prompt were not run.
+- The CSS build matches the example.
+- The dry run's counts, the styles warning, and the `fontWeight` warning for both `type/label` and `chip/font`.
+- A second run plans nothing and saves the same bytes.
+- A missing folder stops the run before it starts, for `--figcraft-file` and for `--library`.
+- **Headless library mode works at figma 0.1.17**: `kit.figcraft` is published and saved, `app.figcraft` uses it and is saved, and a rerun changes neither.
+- Lightning CSS run first turns `t(palette.orange.500)` into `t(palette.orange.5)`. Toghen then reports it not found, or reads `palette.orange.1` with no error where that token exists.
+
+**What the skills said wrongly, now corrected.**
+
+- `Saved <path>.` prints the path absolute.
+- A `left:` line is not only a hand edit: every report note prints as `left:`, such as a key of a `tokens` group a layer has no field for.
+- With `preserve: true`, each `@apply` stays in the output even in the right order. The sign of the wrong order is an `@apply` with nothing expanded before it.
+- `toghen-query --tokens` takes one file. Each file needs its own `--tokens`.
+- `toghen-query css` wants the collection first; without it the answer is wrong with no error.
+- `example.md`: `chip/font` is built but bound by nothing, since the Caption binds `type/label`; the artboard's frame is `Page`; the header now says what ran on 25 November.
+- `messages.md` gains the `pending: modes …` line.
+
+**What the measurement found in the tools.** These are behaviours of figma and query, not of the skills. They are reported to those repositories rather than taught here:
+
+- A FigCraft library's lock entry, inside the target file, holds the library's path absolute. Whether a run on another machine, where that folder does not exist, still finds the library by its id was not measured.
+- A missing entry document's message repeats the path: `the entry document "<path>": "<path>" could not be read`.
+- A dry run after a real run says `a run would restack "Chip", "Page"`, and the real run moves nothing.
+- The library lines mix absolute paths (Published, Enabled, Saved) with relative ones (Building, Using).
+- `toghen-query`'s usage text, `--tokens <file>…`, reads as several files after one flag.
+- `toghen-query css surface.page` answers `--page` with no error.
+- `toghen-query check` passes a reference to a token that does not exist, `{nope}`, and exits 0.

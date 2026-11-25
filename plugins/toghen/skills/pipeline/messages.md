@@ -1,6 +1,6 @@
 # Messages a run prints, and what to do
 
-*Pinned to `@toghen/figma` 0.1.17 (lib 0.2.0, postcss 0.2.0) and `@toghen/query` 0.1.1 (lib, postcss and query 0.1.0 were 6.0.0, 0.21.0 and 0.2.0 before the split), checked 25 November 2026 against what `figma/cli/*.ts` and `figma/main/engines/styleSyncEngine.ts` print, `postcss/reference.md` (*Messages*) and `query/guide.md`, each at its tag. Checked before on 23 November 2026 against figma 0.1.16, and lib, postcss and query as of 24 October 2026. Text in `<angle brackets>` varies. Sources: `figma/cli/*.ts`, `figma/main/components/resolve.ts`, `figma/reference.md`, `postcss/reference.md` (*Messages*).*
+*Pinned to `@toghen/figma` 0.1.17 (lib 0.2.0, postcss 0.2.0) and `@toghen/query` 0.1.1 (lib, postcss and query 0.1.0 were 6.0.0, 0.21.0 and 0.2.0 before the split), checked 25 November 2026 against what `figma/cli/*.ts` and `figma/main/engines/styleSyncEngine.ts` print, `postcss/reference.md` (*Messages*) and `query/guide.md`, each at its tag, then measured the same day headless against `figcraft-cli` 0.18.1; Figma's lines were not run. Checked before on 23 November 2026 against figma 0.1.16, and lib, postcss and query as of 24 October 2026. Text in `<angle brackets>` varies. Sources: `figma/cli/*.ts`, `figma/main/components/resolve.ts`, `figma/reference.md`, `postcss/reference.md` (*Messages*).*
 
 Problems go to standard error, plans and reports to standard output. A message that ends a run is marked **stops**.
 
@@ -111,9 +111,11 @@ A component that cannot run prints `<file>: was not planned: <headline>` or `<fi
 | Line | Meaning |
 |---|---|
 | `pending: token {space.xl} (line 12): the variable sync would create "space/xl"` | Expected in a dry run |
+| `pending: modes state=rest: the variable sync would create it` | A `modes` line pins a mode the variable sync of this run would create | Expected in a first dry run |
 | `pending: component "Chip" (line N): a file earlier in this run would create it; the properties and slots of instances of "Chip" are checked when it is built` | Expected in a first dry run; the real run checks the rest |
 | `left: member "<m>", layer "<address>": "paddingTop" was changed in Figma since Toghen wrote it, and was left as it is; pass --overwrite-drift to write the file's value` | Drift on a component or artboard field. The wording says Figma in FigCraft runs too. With `--overwrite-drift` it is a `warning:` line ending `; the file's value is written over it` |
 | `left: … is a copy of Toghen's …, left alone` | A person's duplicate; never touched |
+| `left: FRAME "Chip" tokens="{chip}": "color" has no field on this layer in Figma, skipped` | A key of a `tokens` group that this layer has no field for; every report note prints as `left:` | Informational. Bind the key on the layer that holds the field |
 | `removed "<x>" (<id>)`, `moved "Chip" to <x>, <y>`, `note: …` | The end of the run: strays removed, sets restacked |
 | `removed the set "<n>" (<id>) from page "<p>"` (or `the artboard`), `note: page "<p>" holds nothing now; it is left as it is` | The end of a `--prune --allow-breaking` run. The page is the person's to delete |
 
@@ -129,7 +131,7 @@ A component that cannot run prints `<file>: was not planned: <headline>` or `<fi
 | `<cli> was not found: put figcraft-cli on the PATH, or name it with FIGCRAFT_CLI.` **stops** | | Install it, or set `FIGCRAFT_CLI` |
 | `<cli> did not start: <reason>` **stops** | | Check the binary and its permissions |
 | `<cli> is <version>: a headless run needs figcraft-cli 0.8.0 or later, …` **stops** | | Upgrade to the app's version |
-| `Saved <path>.` | Headless, completed | Commit the file, or keep it as an artifact |
+| `Saved <path>.`, the path absolute | Headless, completed | Commit the file, or keep it as an artifact |
 | `<path> was not saved: the run did not complete.` (exit 1) | Headless, stopped partway | The file is as it was; fix and rerun |
 | `--figcraft-file <path>: the folder <folder> does not exist, so the run could not save the file there; nothing was written` (or `--library <path>: …` for a library the run builds) **stops** | Checked before the run reaches FigCraft | Create the folder |
 | `<cli> mcp did not answer <command> within <s> s, so the session was stopped` (exit 1) | Headless: `initialize` waits 60 s, every later request 10 minutes | Check that the binary runs; run again |
@@ -192,7 +194,7 @@ The run publishes, enables and accepts; nothing is a person's step but saving th
 | `Cannot write context '<c>' of modifier '<m>': the resolver document gives it no CSS selector. …` | Add `$extensions["com.toghen"].css` to the modifier |
 | `Cannot write the mixins of "ds" inside a layer: …` | Put `@toghen mixins;` at the top level |
 | `"a.b" and "a-b" are both written as the mixin --a-b. …` | Rename one path |
-| Every `@apply` left in the output | List Toghen before the mixins polyfill |
+| An `@apply` with nothing expanded before it | List Toghen before the mixins polyfill. With `preserve: true` each `@apply` stays beside its expansion either way |
 | `Cannot write token "<path>" (mode: <mode>): No CSS serialisation for a value of shape <keys>. …`, for a token a mixin cannot read | Since postcss 0.2.0 it is reported, and the rest of the mixin is written; under `'throw'` it stops the build |
 | `Cannot write '<token>' with light-dark() for modifier '<modifier>': it has a value in context '<context>' only, …` | Since postcss 0.2.0 it is reported, not dropped. Give it a value in the other context too |
 | `Cannot read "<call>" in "@<name> <params>": t() and toghen() are read in declaration values, not in an at-rule's parameters. …` | Since postcss 0.2.0 it is reported. Write the value in the at-rule |

@@ -1,6 +1,6 @@
 # Commands, flags and exit codes
 
-*Pinned to `@toghen/figma` 0.1.17, `@toghen/query` 0.1.1 (0.1.0 was 0.2.0 before the split) and `@toghen/postcss` 0.2.0, checked 25 November 2026 against the usage text in `figma/cli/main.ts` and `query/src/main.ts` and against `postcss/guide.md`, each at its tag; checked before on 23 November 2026, at figma 0.1.16 and query 0.1.0. The authority is the usage text in `figma/cli/main.ts` and `figma/reference.md` (*The command line: toghen-figma*, *Into FigCraft*, *Headless*, *The lock*).*
+*Pinned to `@toghen/figma` 0.1.17, `@toghen/query` 0.1.1 (0.1.0 was 0.2.0 before the split) and `@toghen/postcss` 0.2.0, checked 25 November 2026 against the usage text in `figma/cli/main.ts` and `query/src/main.ts` and against `postcss/guide.md`, each at its tag, then measured the same day on the worked example; checked before on 23 November 2026, at figma 0.1.16 and query 0.1.0. The authority is the usage text in `figma/cli/main.ts` and `figma/reference.md` (*The command line: toghen-figma*, *Into FigCraft*, *Headless*, *The lock*).*
 
 ## How to call it
 
@@ -78,6 +78,8 @@ Files the command keeps: the pairing code in `~/.toghen/figma-pairing`, and the 
 toghen-query [--doc <resolver.json> | --tokens <file>…] [--overrides <map.json>] [--build sum|product|modifier=context,…] [--json] [<query> | --session <file>]
 ```
 
+Give `--tokens` once for each file: `--tokens a.json --tokens b.json`. A second file after one `--tokens` is read as the query (`unknown command 'b.json'`).
+
 Useful queries in a pipeline (`query/guide.md`):
 
 | Query | Answers |
@@ -87,7 +89,7 @@ Useful queries in a pipeline (`query/guide.md`):
 | `value <path> across` | One row per mode, with the core's error on a row it throws for |
 | `parts <group> axes` | The axes a component's parts give it, the ones a component file takes |
 | `applies <component> state=hover` | Which token supplies each key under a selection |
-| `css <lookup path>` | A token's custom property name |
+| `css <lookup path>` | A token's custom property name. The lookup path starts with the collection: `css mini.surface.page` answers `--surface-page`. Without it the first segment is read as the collection, and `css surface.page` answers `--page` with no error |
 
 The flags may stand before or after the query. From the query's first word on, a `--word` is the query's unless it is one of the flags, so `css --surface-raised theme` asks for a link's custom property. After `--`, every word is the query's.
 
@@ -112,7 +114,7 @@ await mkdir('dist', { recursive: true });
 await writeFile('dist/mini.css', css);
 ```
 
-- List Toghen before the mixins polyfill, or every `@apply` stays in the output.
+- List Toghen before the mixins polyfill, or no `@apply` is expanded. With `preserve: true` each `@apply` stays in the output beside what it expands to.
 - List Toghen before anything that runs Lightning CSS, a PostCSS plugin such as Tailwind's included. Run first, Lightning CSS reads a number after a dot as a number, so it prints `t(palette.orange.100)` as `t(palette.orange.1)`; Toghen then reports a token that is not found, or reads another token that has the new path. Keep Vite's `css.transformer` at its default, `'postcss'`.
 - A Vite 8 production build minifies its CSS with Lightning CSS by default, and at Vite's default targets Lightning CSS lowers each `light-dark()` pair. Lowered, a pair is decided at the root, so a subtree's own `color-scheme` is ignored; with no `color-scheme` in the stylesheet, the colour is lost. Exclude the lowering: `css: { lightningcss: { exclude: Features.LightDark } }` in `vite.config.js`, with `Features` from `lightningcss` in the dev dependencies. See `postcss/guide.md` (*When Lightning CSS runs after the plugin*).
 - `onUnresolved: 'throw'` makes a missing token fail the build. Use it in CI.
