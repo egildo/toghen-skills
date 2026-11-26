@@ -1,8 +1,10 @@
 # Messages a run prints, and what to do
 
-*Pinned to `@toghen/figma` 0.1.17 (lib 0.2.0, postcss 0.2.0) and `@toghen/query` 0.1.1 (lib, postcss and query 0.1.0 were 6.0.0, 0.21.0 and 0.2.0 before the split), checked 25 November 2026 against what `figma/cli/*.ts` and `figma/main/engines/styleSyncEngine.ts` print, `postcss/reference.md` (*Messages*) and `query/guide.md`, each at its tag, then measured the same day headless against `figcraft-cli` 0.18.1; Figma's lines were not run. Checked before on 23 November 2026 against figma 0.1.16, and lib, postcss and query as of 24 October 2026. Text in `<angle brackets>` varies. Sources: `figma/cli/*.ts`, `figma/main/components/resolve.ts`, `figma/reference.md`, `postcss/reference.md` (*Messages*).*
+*Pinned to `@toghen/figma` 0.1.18 (lib 0.2.1, postcss 0.2.0) and `@toghen/query` 0.1.2 (lib, postcss and query 0.1.0 were 6.0.0, 0.21.0 and 0.2.0 before the split), checked 26 November 2026 against what `figma/cli/*.ts` prints, `figma/reference.md` (*The command line*, *Libraries in FigCraft*), `lib/reference.md` (*load*) and `query/guide.md`, each at its tag, then measured the same day headless against `figcraft-cli` 0.18.1; Figma's lines were not run. Checked before on 25 November 2026 against figma 0.1.17, also `figma/main/engines/styleSyncEngine.ts` and `postcss/reference.md` (*Messages*); on 23 November 2026 against figma 0.1.16, and lib, postcss and query as of 24 October 2026. Text in `<angle brackets>` varies. Sources: `figma/cli/*.ts`, `figma/main/components/resolve.ts`, `figma/reference.md`, `postcss/reference.md` (*Messages*).*
 
 Problems go to standard error, plans and reports to standard output. A message that ends a run is marked **stops**.
+
+A `<path>` someone typed (an entry, a `.kdl` file, `--overrides`, `--input`, `--figcraft-file`, `--library`, `--use`) is printed as typed, so a line reads the same on every machine. A path nobody typed is printed as it is, often absolute: a folder the run derives from a typed path, a location lib names, a path FigCraft lists.
 
 ## Arguments and files
 
@@ -24,8 +26,9 @@ Problems go to standard error, plans and reports to standard output. A message t
 | `--figcraft takes the port FigCraft's control socket listens on, a number; got <x>` **stops** | | Give the port |
 | `no component file given` **stops** | `check`, `members` or `components` with no `.kdl` | Add the files |
 | `--overrides <file> cannot be read as JSON: …` / `… must hold one JSON object: …` **stops** | | Fix the map |
-| `<file> cannot be read: …` **stops** | | Fix the path; paths are relative to the directory the command runs in (`commands.md`, *How to call it*) |
+| `<file> cannot be read: <reason>` **stops** | Node's reason, such as `ENOENT: no such file or directory`, without Node's copy of the path | Fix the path; paths are relative to the directory the command runs in (`commands.md`, *How to call it*) |
 | `the component files name each other in a cycle, so none of them can be built first: a.component.kdl → b.component.kdl → a.component.kdl; nothing was written` **stops** | Files run in dependency order, and these cannot | Take one of the instances out |
+| `<entry>: the entry document "<location>" could not be read. <reason>` / `… is not JSON. <reason>` **stops** | `<entry>` is as typed, `<location>` the absolute path lib read | Fix the path, or the JSON |
 | `<entry>: $ref "<ref>" in "<file>" …` **stops** | `load` could not follow a reference: a missing or non-JSON file, a pointer to nothing, a cycle, token files with no common folder and no `--name` | Read the message; it names the reference and its file |
 
 ## Pairing (Figma)
@@ -117,6 +120,7 @@ A component that cannot run prints `<file>: was not planned: <headline>` or `<fi
 | `left: … is a copy of Toghen's …, left alone` | A person's duplicate; never touched |
 | `left: FRAME "Chip" tokens="{chip}": "color" has no field on this layer in Figma, skipped` | A key of a `tokens` group that this layer has no field for; every report note prints as `left:` | Informational. Bind the key on the layer that holds the field |
 | `removed "<x>" (<id>)`, `moved "Chip" to <x>, <y>`, `note: …` | The end of the run: strays removed, sets restacked |
+| `note: page "<p>": a run would restack "<a>", "<b>"` / `note: page "<p>": "<h>" was moved by hand and would be left where it is` | A dry run: the sets the restack would move at today's sizes, with no positions. With nothing to move, no line. A set the run makes larger can push others it does not name |
 | `removed the set "<n>" (<id>) from page "<p>"` (or `the artboard`), `note: page "<p>" holds nothing now; it is left as it is` | The end of a `--prune --allow-breaking` run. The page is the person's to delete |
 
 ## FigCraft, live and headless
@@ -131,7 +135,7 @@ A component that cannot run prints `<file>: was not planned: <headline>` or `<fi
 | `<cli> was not found: put figcraft-cli on the PATH, or name it with FIGCRAFT_CLI.` **stops** | | Install it, or set `FIGCRAFT_CLI` |
 | `<cli> did not start: <reason>` **stops** | | Check the binary and its permissions |
 | `<cli> is <version>: a headless run needs figcraft-cli 0.8.0 or later, …` **stops** | | Upgrade to the app's version |
-| `Saved <path>.`, the path absolute | Headless, completed | Commit the file, or keep it as an artifact |
+| `Saved <path>.` | Headless, completed | Commit the file, or keep it as an artifact |
 | `<path> was not saved: the run did not complete.` (exit 1) | Headless, stopped partway | The file is as it was; fix and rerun |
 | `--figcraft-file <path>: the folder <folder> does not exist, so the run could not save the file there; nothing was written` (or `--library <path>: …` for a library the run builds) **stops** | Checked before the run reaches FigCraft | Create the folder |
 | `<cli> mcp did not answer <command> within <s> s, so the session was stopped` (exit 1) | Headless: `initialize` waits 60 s, every later request 10 minutes | Check that the binary runs; run again |
@@ -179,7 +183,8 @@ The run publishes, enables and accepts; nothing is a person's step but saving th
 | `The lock in "<tab>" holds "<name>" (<given>), written by the build: <c> components · <s> styles · <v> variables.` | Done; `written by the command line` after `lock` |
 | `Using <path>: the lock in "<tab>" holds "<name>", <c> components · <s> styles · <v> variables.` | A `--use` run refreshed the entry |
 | `<path> has <n> updates for "<tab>" not accepted: a run with --library accepts them, or lock does.` | `--use` enables, never accepts |
-| `Dry run: "<tab>" has <n> updates from <path> waiting; a run would publish the library first, then accept them.` / `Dry run: <path> is not enabled in "<tab>"; a run would enable it.` / `Dry run: "<tab>" cannot read <path>: <reason>` | What a dry run sees in the target |
+| `Dry run: "<tab>" has <n> updates from <path> waiting; a run would publish the library first, then accept them.` / `Dry run: <path> is not enabled in "<tab>"; a run would enable it.` / `Dry run: "<tab>" cannot read <path>: <reason>` | What a dry run sees in the target. The library is found by the id the target's lock holds, else by its path |
+| `Dry run: "<tab>" has the library at <listed>; a run would point it at <path>.` | The library moved: FigCraft lists it at `<listed>`, absolute. A real run points it at `<path>` by its id, and keeps every instance |
 | `Dry run: the library was not published or saved, and the lock in the target was not written.` | |
 | `The library was not published and the lock in the target was not written: the build in the library did not complete.` (exit 1) | Fix the library build; nothing left the library |
 | `The target is the library <path> itself: show, or name, the file that uses it.` **stops** | |
@@ -202,4 +207,9 @@ The run publishes, enables and accepts; nothing is a person's step but saving th
 
 ## `toghen-query`
 
-Each answer ends with `— <export>`. A one-shot query exits 1 on an `error: …` line, a usage error, an unknown command, or an `across` with a row the core threw for, and 0 for an answer or `help`. `check` prints `incomplete:`, `holes:`, `non-factorable:` and `collisions:`. Each reads `(none)` on its own line when clean, and is a bare header with indented entries when not. `check` exits 1 when any but `collisions:` has entries.
+Each answer ends with `— <export>`. A one-shot query exits 1 on an `error: …` line, a usage error, an unknown command, or an `across` with a row the core threw for, and 0 for an answer or `help`. `check` prints `incomplete:`, `holes:`, `non-factorable:`, `same-css-name:`, `unresolvable:` and `collisions:`. Each reads `(none)` on its own line when clean, and is a bare header with indented entries when not: `  --space-a-b: space.a.b, space.a-b` under `same-css-name:`, `  <path> in <mode>: <reference> (<reason>)` under `unresolvable:`, the reason `not-found`, `group`, `no-value`, `malformed`, `unsupported` or `circular`. `check` exits 1 when any but `collisions:` has entries.
+
+| Message | Meaning |
+|---|---|
+| `error: Token '<path>' not found in collection '<c>'.` after `css <path>` (exit 1) | The path names no token, or a group |
+| `error: the entry document "<location>" could not be read. <reason>` / `… is not JSON. <reason>` (exit 2) | `--doc` names a file that is missing, or is not JSON. The usage follows it |

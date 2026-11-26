@@ -1,6 +1,6 @@
 # A worked example: `mini`
 
-*A synthetic design system. `toghen-figma check`, `toghen-figma members`, `toghen-query check` and the CSS build were run on these files on 24 October 2026, at figma 7.0.0, lib 6.0.0 and postcss 0.21.0. On 25 November 2026 the same ran again at figma 0.1.17, lib 0.2.0, postcss 0.2.0 and query 0.1.1, from npm, with the same results; the FigCraft runs were made too, headless against `figcraft-cli` 0.18.1 with `FIGCRAFT_NO_SYSTEM_FONTS=1`, and the file ended as below. The Figma runs were not; what they should end with is read from the code.*
+*A synthetic design system. `toghen-figma check`, `toghen-figma members`, `toghen-query check` and the CSS build were run on these files on 24 October 2026, at figma 7.0.0, lib 6.0.0 and postcss 0.21.0. On 25 November 2026 the same ran again at figma 0.1.17, lib 0.2.0, postcss 0.2.0 and query 0.1.1, from npm, with the same results; the FigCraft runs were made too, headless against `figcraft-cli` 0.18.1 with `FIGCRAFT_NO_SYSTEM_FONTS=1`, and the file ended as below. On 26 November 2026 all of it ran again at figma 0.1.18, lib 0.2.1, postcss 0.2.0 and query 0.1.2, from npm, with the same results; only `toghen-query check`'s two new sections and the `Saved` line read otherwise. The Figma runs were not; what they should end with is read from the code.*
 
 ## The files
 
@@ -200,7 +200,8 @@ FRAME Page layoutMode=VERTICAL layoutSizingHorizontal=HUG layoutSizingVertical=H
 ### A. Checks (no target)
 
 ```sh
-pnpm tokens:check     # incomplete: (none), holes: (none), non-factorable: (none), collisions: (none)
+pnpm tokens:check     # incomplete: (none), holes: (none), non-factorable: (none), same-css-name: (none),
+                      # unresolvable: (none), collisions: (none)
 pnpm figma:lint       # 2 files read: no errors
 pnpm css              # dist/mini.css; no [object Object], no t( or toghen( left
 pnpm exec toghen-figma members tokens/mini.resolver.json components/chip.component.kdl
@@ -258,11 +259,11 @@ pnpm figcraft:sync
 ```sh
 mkdir -p design
 pnpm figcraft:file:check   # no --page: a new file has only "Page 1"
-pnpm figcraft:file         # ends "Saved /…/design/mini.figcraft."
+pnpm figcraft:file         # ends "Saved design/mini.figcraft."
 git add design/mini.figcraft
 ```
 
-A second run with nothing changed plans nothing and writes nothing: `Variable plan: 0 creates · 0 updates · <n> skips (<n> unchanged)`, `Chip (dry run): … 0 would update`.
+A second run with nothing changed plans nothing and writes nothing: `Variable plan: 0 creates · 0 updates · <n> skips (<n> unchanged)`, `Chip (dry run): … 0 would update`. Its dry run says nothing of the restack, and the real run saves the same bytes.
 
 ## The CSS it makes (excerpt, verified)
 

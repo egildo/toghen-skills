@@ -178,3 +178,39 @@ The entry of 25 October, *With it*, says Biome lints and formats the code and `p
 - `toghen-query`'s usage text, `--tokens <file>…`, reads as several files after one flag.
 - `toghen-query css surface.page` answers `--page` with no error.
 - `toghen-query check` passes a reference to a token that does not exist, `{nope}`, and exits 0.
+
+## Measured again: figma 0.1.18, lib 0.2.1, query 0.1.2 (26 November 2026)
+
+**Status:** done. The plugin is 0.1.4.
+
+**Why.** The fixes the measurement of 25 November 2026 asked for were released on 26 November: figma 0.1.18, lib 0.2.1 and query 0.1.2. The plan is house's `.reference/plans/workspace/plan-2026-11-25-measurement-fixes.md`, ruled "1b 2a 3a 4a 5a". postcss stays 0.2.0, FigCraft 0.18.1.
+
+**How it was checked.** By the routine in [specs.md](specs.md). Read at each tag: the entries *Fixed and built: what the measurement of 25 November 2026 found* in figma, lib and query; `figma/reference.md` (*The command line*, *Headless*, *Libraries in FigCraft*, *The lock*); `lib/reference.md` (`check()`, `cssPropertyNameOf`, *load*); `query/guide.md` and `query/specs.md`; and the diffs of `figma/cli/` and `query/src/` since the last tags. Then the worked example was copied to a fresh scratch folder, and the four packages installed from npm; `npm ls` showed one lib, 0.2.1. FigCraft ran headless only, against `figcraft-cli` 0.18.1, with `FIGCRAFT_NO_SYSTEM_FONTS=1`. Figma and the FigCraft app were not run.
+
+**What held.**
+
+- `check`, `members`, the broken copy's three errors, and the CSS build, with no `[object Object]` and no `t(` left.
+- The dry and real runs, twice. The second plans nothing and saves the same bytes.
+- Library mode: `kit` twice, `app` twice, and `lock`. Each second run changes neither file.
+- A missing folder stops the run before it starts, dry runs included, for `--figcraft-file` and for `--library`.
+- `--tokens` twice reads both files. A second file after one `--tokens` is still `unknown command`, so that note stays.
+
+**What changed in the skills, and the line that showed it.**
+
+- **`Saved <path>.` is as typed again:** `Saved design/mini.figcraft.` The correction of 25 November is undone, in `pipeline`, `messages.md` and `example.md`.
+- **Paths in messages.** `messages.md` states the rule once: a typed path prints as typed, and a path nobody typed prints as it is.
+- **The lock holds the id and no path:** the entry read back `{"id":"…","by":"build"}`. A target whose lock figma 0.1.17 wrote kept its `path` until the first `--use` run, which dropped it. In `figcraft` and `toghen-target.md`.
+- **A moved library**, with its old file gone: `Dry run: "app" has the library at /…/kits/kit.figcraft; a run would point it at lib2/kit.figcraft.` `lock --dry-run` says the same. The real run pointed it there and changed nothing else. In `pipeline`, `messages.md`, `figcraft` and `toghen-target.md`.
+- **The restack.** A dry run after a real run has no `a run would restack` line, and a file 0.1.17 built has none either. The line that names the sets a run would move is read from figma's reference, not measured. In `messages.md`, `example.md` and `toghen-target.md`.
+- **`toghen-query check`** prints `same-css-name:` and `unresolvable:`, and exits 1 on either. Measured: `--space-a-b: space.a.b, space.a-b`, `color.broken in default: {nope} (not-found)`, `shadow.card in default: {color.missing} (not-found)` and `loop.a in default: {loop.a} (circular)`. In `pipeline`, `commands.md`, `messages.md` and `example.md`.
+- **`toghen-query css`** takes the path with or without the collection: `css surface.page` and `css mini.surface.page` both answer `--surface-page`. `css nope.nothing` and `css surface` exit 1 with lib's error. The correction of 25 November is undone, in `commands.md` and `messages.md`.
+- **The usage** reads `--tokens <file> [--tokens <file> …]` (`commands.md`).
+- **Read errors.** `components/nope.component.kdl cannot be read: ENOENT: no such file or directory`. `messages.md` gains rows for a missing or broken entry document, in figma and in query.
+- The pins, dates and *Checked* rows in every skill. The figma skill's Toghen line names 0.1.18. `toghen-target.md` gains a 0.1.18 row.
+
+**What the measurement found in the tools.** These are behaviours of figma and query, reported to those repositories rather than taught here as faults:
+
+- figma's line for a missing entry still holds its path twice, as typed and then as lib's absolute location: `tokens/nope.resolver.json: the entry document "/…/tokens/nope.resolver.json" could not be read. ENOENT: no such file or directory`. Each copy follows the rule of question 2a; query's line holds it once.
+- A dry run with nothing waiting says `Dry run: "app" has 0 updates from design/kit.figcraft waiting; a run would publish the library first, then accept them.` `lock --dry-run` prints the same line, though `lock` publishes nothing.
+- A `--doc` that does not load prints the usage after the error, though the arguments were right. It exits 2, as at 0.1.1.
+- Still as the plan noted: an unchanged run prints `Chip: 1 step · 0 created · 0 updated · 0 deleted`, and a first headless library run names its target `"Untitled"`.

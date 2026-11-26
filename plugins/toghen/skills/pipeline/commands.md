@@ -1,6 +1,6 @@
 # Commands, flags and exit codes
 
-*Pinned to `@toghen/figma` 0.1.17, `@toghen/query` 0.1.1 (0.1.0 was 0.2.0 before the split) and `@toghen/postcss` 0.2.0, checked 25 November 2026 against the usage text in `figma/cli/main.ts` and `query/src/main.ts` and against `postcss/guide.md`, each at its tag, then measured the same day on the worked example; checked before on 23 November 2026, at figma 0.1.16 and query 0.1.0. The authority is the usage text in `figma/cli/main.ts` and `figma/reference.md` (*The command line: toghen-figma*, *Into FigCraft*, *Headless*, *The lock*).*
+*Pinned to `@toghen/figma` 0.1.18, `@toghen/query` 0.1.2 (0.1.0 was 0.2.0 before the split) and `@toghen/postcss` 0.2.0, checked 26 November 2026 against the usage text in `figma/cli/main.ts` and `query/src/main.ts` and against `query/guide.md`, each at its tag, then measured the same day on the worked example; checked before on 25 November 2026, at figma 0.1.17, query 0.1.1 and postcss 0.2.0, and on 23 November 2026, at figma 0.1.16 and query 0.1.0. The authority is the usage text in `figma/cli/main.ts` and `figma/reference.md` (*The command line: toghen-figma*, *Into FigCraft*, *Headless*, *The lock*).*
 
 ## How to call it
 
@@ -75,7 +75,7 @@ Files the command keeps: the pairing code in `~/.toghen/figma-pairing`, and the 
 ## `toghen-query`
 
 ```
-toghen-query [--doc <resolver.json> | --tokens <file>…] [--overrides <map.json>] [--build sum|product|modifier=context,…] [--json] [<query> | --session <file>]
+toghen-query [--doc <resolver.json> | --tokens <file> [--tokens <file> …]] [--overrides <map.json>] [--build sum|product|modifier=context,…] [--json] [<query> | --session <file>]
 ```
 
 Give `--tokens` once for each file: `--tokens a.json --tokens b.json`. A second file after one `--tokens` is read as the query (`unknown command 'b.json'`).
@@ -84,16 +84,16 @@ Useful queries in a pipeline (`query/guide.md`):
 
 | Query | Answers |
 |---|---|
-| `check` | Holes, tokens incomplete in some mode, non-factorable tokens, the collisions `load` found. Exit 1 for any but collisions |
+| `check` | Holes, tokens incomplete in some mode, non-factorable tokens, tokens whose paths give one custom property, references that do not resolve in some mode (a cycle included), the collisions `load` found. Exit 1 for any but collisions |
 | `system` | Modifiers, contexts, defaults, modes built; with a map, its hash and unused keys |
 | `value <path> across` | One row per mode, with the core's error on a row it throws for |
 | `parts <group> axes` | The axes a component's parts give it, the ones a component file takes |
 | `applies <component> state=hover` | Which token supplies each key under a selection |
-| `css <lookup path>` | A token's custom property name. The lookup path starts with the collection: `css mini.surface.page` answers `--surface-page`. Without it the first segment is read as the collection, and `css surface.page` answers `--page` with no error |
+| `css <path>` | A token's custom property name, with or without the collection: `css surface.page` and `css mini.surface.page` both answer `--surface-page`. A path that names no token, or a group, is an `error: …`, exit 1 |
 
 The flags may stand before or after the query. From the query's first word on, a `--word` is the query's unless it is one of the flags, so `css --surface-raised theme` asks for a link's custom property. After `--`, every word is the query's.
 
-Exit, for one query: 0 for an answer, `help` included; 1 for an `error: …`, a usage error, an unknown command, an `across` with a row the core threw for, or a `check` with `incomplete`, `holes` or `non-factorable` entries (collisions do not fail it). A replayed `--session` exits 1 when it differs; the prompt exits 0; 2 when the document does not load.
+Exit, for one query: 0 for an answer, `help` included; 1 for an `error: …`, a usage error, an unknown command, an `across` with a row the core threw for, or a `check` with `incomplete`, `holes`, `non-factorable`, `same-css-name` or `unresolvable` entries (collisions do not fail it). A replayed `--session` exits 1 when it differs; the prompt exits 0; 2 when the document does not load.
 
 ## The CSS build
 
@@ -184,4 +184,4 @@ Figma cannot run in CI. FigCraft files can.
 - run: pnpm figcraft:file
 ```
 
-The first line fails when `toghen-query check` lists incomplete tokens, holes or non-factorable tokens. It passes with collisions, which `load` reports as advice. To fail on them too, read the output: a clean section reads `collisions: (none)`, one with entries is a bare `collisions:` with them beneath (`pnpm --silent tokens:check > query.txt && ! grep -qE '^collisions:\s*$' query.txt`). A first-ever `figcraft:file:check` may hold the artboard: the chip its component file would create counts as present (see the skill, *Dry run first*).
+The first line fails when `toghen-query check` lists incomplete tokens, holes, non-factorable tokens, tokens of one custom property, or references that do not resolve. It passes with collisions, which `load` reports as advice. To fail on them too, read the output: a clean section reads `collisions: (none)`, one with entries is a bare `collisions:` with them beneath (`pnpm --silent tokens:check > query.txt && ! grep -qE '^collisions:\s*$' query.txt`). A first-ever `figcraft:file:check` may hold the artboard: the chip its component file would create counts as present (see the skill, *Dry run first*).
