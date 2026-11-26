@@ -214,3 +214,22 @@ The entry of 25 October, *With it*, says Biome lints and formats the code and `p
 - A dry run with nothing waiting says `Dry run: "app" has 0 updates from design/kit.figcraft waiting; a run would publish the library first, then accept them.` `lock --dry-run` prints the same line, though `lock` publishes nothing.
 - A `--doc` that does not load prints the usage after the error, though the arguments were right. It exits 2, as at 0.1.1.
 - Still as the plan noted: an unchanged run prints `Chip: 1 step · 0 created · 0 updated · 0 deleted`, and a first headless library run names its target `"Untitled"`.
+
+## Measured again: figma 0.1.19, query 0.1.3 (26 November 2026)
+
+**Status:** done. The plugin is 0.1.5.
+
+**Why.** The five leftovers that *Measured again: figma 0.1.18, lib 0.2.1, query 0.1.2* found in the tools were fixed and released the same day: figma 0.1.19 and query 0.1.3. The plan is house's `.reference/plans/workspace/plan-2026-11-26-leftovers.md`, ruled "1a 2a". lib stays 0.2.1, postcss 0.2.0, FigCraft 0.18.1.
+
+**How it was checked.** By the routine in [specs.md](specs.md). Read at each tag: figma's *Fixed and built: the leftovers of the measurement of 26 November 2026* and query's *Fixed: the usage after a document that does not load*, with the diffs of `figma/cli/` and `query/src/main.ts` since the last tags. Then the worked example was copied to a fresh scratch folder, with no FigCraft file in it, and the packages installed from npm; `npm ls` showed one lib, 0.2.1. FigCraft ran headless only, against `figcraft-cli` 0.18.1, with `FIGCRAFT_NO_SYSTEM_FONTS=1`. Figma and the FigCraft app were not run.
+
+**What changed in the skills, and the line that showed it.**
+
+- **A missing entry is named once**, in lib's line alone: `the entry document "/…/tokens/nope.resolver.json" could not be read. ENOENT: no such file or directory`, from `check` and from a `sync` dry run, exit 1. Any other load error still starts with the entry as typed. In `messages.md`.
+- **query prints no usage after a document that does not load:** `error: the entry document "/…/tokens/nope.resolver.json" could not be read. ENOENT: …`, exit 2, and nothing after it. In `messages.md`.
+- **A set's step count leaves out the re-layout:** a second run prints `Chip: 0 steps · 0 created · 0 updated · 0 deleted`, as the artboard's `Chip reference: 0 steps · …`. A first build still prints `Chip: 1 step · 3 created …`. In `messages.md`, `figcraft` and `toghen-target.md`.
+- **`lock --dry-run`** says `Dry run: "app" has 0 updates from design/kit.figcraft waiting; a run would accept them, then write the lock.`, then `Dry run: the lock in the target was not written.` A library run's dry run keeps both of its lines. In `messages.md`.
+- **A first headless run names its new file as later runs do:** its dry run said `Dry run: design/kit.figcraft is not enabled in "app"` and left `design/` empty, and its real run `Enabled design/kit.figcraft in "app", with no update to accept.` and `The lock in "app" holds "kit" …`. No line said `Untitled`. No skill had taught the old name. In `toghen-target.md`.
+- The pins, dates and *Checked* rows in every skill. `toghen-target.md` gains a 0.1.19 row.
+
+**What the measurement found in the tools.** Nothing new. Two notes stay in figma's own `decisions.md`, under *Noticed, not fixed*: the bridge test that flakes, and a list of token files with one missing, whose line still holds paths twice.
