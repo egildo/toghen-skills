@@ -1,6 +1,6 @@
 # Messages a run prints, and what to do
 
-*Pinned to `@toghen/figma` 0.1.19 (lib 0.2.1, postcss 0.2.0) and `@toghen/query` 0.1.3 (lib, postcss and query 0.1.0 were 6.0.0, 0.21.0 and 0.2.0 before the split), checked 26 November 2026 against what `figma/cli/*.ts` prints, `figma/reference.md` (*The command line*, *Libraries in FigCraft*), `lib/reference.md` (*load*) and `query/guide.md`, each at its tag, then measured the same day headless against `figcraft-cli` 0.18.1; Figma's lines were not run. Checked before on 25 November 2026 against figma 0.1.17, also `figma/main/engines/styleSyncEngine.ts` and `postcss/reference.md` (*Messages*); on 23 November 2026 against figma 0.1.16, and lib, postcss and query as of 24 October 2026. Text in `<angle brackets>` varies. Sources: `figma/cli/*.ts`, `figma/main/components/resolve.ts`, `figma/reference.md`, `postcss/reference.md` (*Messages*).*
+*Pinned to `@toghen/figma` 0.1.20 (lib 0.2.2, postcss 0.2.0) and `@toghen/query` 0.1.3 (lib, postcss and query 0.1.0 were 6.0.0, 0.21.0 and 0.2.0 before the split), checked 26 November 2026 against what `figma/cli/*.ts` prints, `figma/reference.md` (*The command line*, *Libraries in FigCraft*), `lib/reference.md` (*load*) and `query/guide.md`, each at its tag, then measured the same day headless against `figcraft-cli` 0.18.1; Figma's lines were not run. Checked before on 25 November 2026 against figma 0.1.17, also `figma/main/engines/styleSyncEngine.ts` and `postcss/reference.md` (*Messages*); on 23 November 2026 against figma 0.1.16, and lib, postcss and query as of 24 October 2026. Text in `<angle brackets>` varies. Sources: `figma/cli/*.ts`, `figma/main/components/resolve.ts`, `figma/reference.md`, `postcss/reference.md` (*Messages*).*
 
 Problems go to standard error, plans and reports to standard output. A message that ends a run is marked **stops**.
 
@@ -28,7 +28,7 @@ A `<path>` someone typed (an entry, a `.kdl` file, `--overrides`, `--input`, `--
 | `--overrides <file> cannot be read as JSON: …` / `… must hold one JSON object: …` **stops** | | Fix the map |
 | `<file> cannot be read: <reason>` **stops** | Node's reason, such as `ENOENT: no such file or directory`, without Node's copy of the path | Fix the path; paths are relative to the directory the command runs in (`commands.md`, *How to call it*) |
 | `the component files name each other in a cycle, so none of them can be built first: a.component.kdl → b.component.kdl → a.component.kdl; nothing was written` **stops** | Files run in dependency order, and these cannot | Take one of the instances out |
-| `the entry document "<location>" could not be read. <reason>` / `… is not JSON. <reason>` **stops** | lib's line alone, which names the entry once: `<location>` is the absolute path lib read. Any other load error starts with the entry as typed, `<entry>: <message>` | Fix the path, or the JSON |
+| `the entry document "<location>" could not be read. <reason>` / `… is not JSON. <reason>`, and `the entry's token file "<location>" …` for one of a list of token files **stops** | lib's line alone, which names the file once: `<location>` is the absolute path lib read. Any other load error starts with the entry as typed, `<entry>: <message>` | Fix the path, or the JSON |
 | `<entry>: $ref "<ref>" in "<file>" …` **stops** | `load` could not follow a reference: a missing or non-JSON file, a pointer to nothing, a cycle, token files with no common folder and no `--name` | Read the message; it names the reference and its file |
 
 ## Pairing (Figma)
@@ -212,4 +212,4 @@ Each answer ends with `— <export>`. A one-shot query exits 1 on an `error: …
 | Message | Meaning |
 |---|---|
 | `error: Token '<path>' not found in collection '<c>'.` after `css <path>` (exit 1) | The path names no token, or a group |
-| `error: the entry document "<location>" could not be read. <reason>` / `… is not JSON. <reason>` (exit 2) | `--doc` names a file that is missing, or is not JSON. No usage follows it: the arguments were right |
+| `error: the entry document "<location>" could not be read. <reason>` / `… is not JSON. <reason>`, and `error: the entry's token file "<location>" …` (exit 2) | `--doc`, or one `--tokens`, names a file that is missing, or is not JSON. No usage follows it: the arguments were right |

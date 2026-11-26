@@ -233,3 +233,18 @@ The entry of 25 October, *With it*, says Biome lints and formats the code and `p
 - The pins, dates and *Checked* rows in every skill. `toghen-target.md` gains a 0.1.19 row.
 
 **What the measurement found in the tools.** Nothing new. Two notes stay in figma's own `decisions.md`, under *Noticed, not fixed*: the bridge test that flakes, and a list of token files with one missing, whose line still holds paths twice.
+
+## Measured again: figma 0.1.20, lib 0.2.2 (26 November 2026)
+
+**Status:** done. The plugin is 0.1.6.
+
+**Why.** The last note of *Measured again: figma 0.1.19, query 0.1.3*, a list of token files with one missing, was fixed and released the same day on Egildo's "Fix the token-file list too": lib 0.2.2 and figma 0.1.20. query stays 0.1.3 and takes lib 0.2.2 by its range. postcss stays 0.2.0, FigCraft 0.18.1.
+
+**How it was checked.** By the routine in [specs.md](specs.md). Read at each tag: the entries *Fixed: a file of a list of token files named once* in lib's and figma's `decisions.md`, and the diffs of `lib/src/resolver/load.ts` and `figma/cli/run.ts`. Then the packages were installed from npm into a fresh scratch folder; `npm ls` showed one lib, 0.2.2. FigCraft ran headless only, a `sync --dry-run --figcraft-file`, which wrote nothing. Figma and the FigCraft app were not run.
+
+**What changed in the skills, and the line that showed it.**
+
+- **A file of a list of token files that does not load is named once**, in lib's line alone: `the entry's token file "/…/tokens/nope.tokens.json" could not be read. ENOENT: no such file or directory`, from figma's `check` and a `sync` dry run, exit 1, and `… is not JSON. …` for one that is not JSON. query's `--tokens` prints the same after `error: `, exit 2. 0.1.19 named the file three times and cited `tokens.resolver.json`, lib's wrapper, which is on no disk. In `messages.md` and `toghen-target.md`.
+- The pins, dates and *Checked* rows in every skill. `toghen-target.md` gains a 0.1.20 row.
+
+**What the measurement found in the tools.** Nothing new. lib's own `decisions.md` notes three messages left as they are: a listed resolver document and a listed file that holds no group still cite the wrapper, and a mapped reference names its location twice.

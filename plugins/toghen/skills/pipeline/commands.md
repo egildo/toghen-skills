@@ -1,6 +1,6 @@
 # Commands, flags and exit codes
 
-*Pinned to `@toghen/figma` 0.1.19, `@toghen/query` 0.1.3 (0.1.0 was 0.2.0 before the split) and `@toghen/postcss` 0.2.0, checked 26 November 2026 against the usage text in `figma/cli/main.ts` and `query/src/main.ts` and against `query/guide.md`, each at its tag, then measured the same day on the worked example; checked before on 25 November 2026, at figma 0.1.17, query 0.1.1 and postcss 0.2.0, and on 23 November 2026, at figma 0.1.16 and query 0.1.0. The authority is the usage text in `figma/cli/main.ts` and `figma/reference.md` (*The command line: toghen-figma*, *Into FigCraft*, *Headless*, *The lock*).*
+*Pinned to `@toghen/figma` 0.1.20, `@toghen/query` 0.1.3 (0.1.0 was 0.2.0 before the split) and `@toghen/postcss` 0.2.0, checked 26 November 2026 against the usage text in `figma/cli/main.ts` and `query/src/main.ts` and against `query/guide.md`, each at its tag, then measured the same day on the worked example; checked before on 25 November 2026, at figma 0.1.17, query 0.1.1 and postcss 0.2.0, and on 23 November 2026, at figma 0.1.16 and query 0.1.0. The authority is the usage text in `figma/cli/main.ts` and `figma/reference.md` (*The command line: toghen-figma*, *Into FigCraft*, *Headless*, *The lock*).*
 
 ## How to call it
 
